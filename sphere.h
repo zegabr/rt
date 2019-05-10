@@ -4,9 +4,9 @@
 class sphere: public hitable {
     public:
     sphere(){}
-    sphere(vec3 cen, float r, vec3 col) : center(cen), radius(r), color(col){};
+    sphere(vec3 cen, float r/*, vec3 col*/) : center(cen), radius(r)/*, color(col)*/{};
     virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
-    vec3 center,color;//Cor foi declarada, mas não está sendo utilizada pela função Cor no main...
+    vec3 center/*,color*/;//Cor foi declarada, mas não está sendo utilizada pela função Cor no main...
     float radius;
 };
 
