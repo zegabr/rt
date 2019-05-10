@@ -2,7 +2,7 @@
 #include<iostream>
 #include<fstream>
 #include<vector>
-#define pl '\n'
+#include<cmath>
 using namespace std;
 
 
@@ -22,7 +22,7 @@ int main(){
             //calcular cor de um pixel aqui
 
             //colocar r g b do pixel no out
-            out << i << ' ' << j << ' ' << j << '\n';
+            out << i << ' ' << j << ' ' << abs(j-i) << '\n';
         }
     }
 
