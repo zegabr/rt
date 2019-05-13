@@ -26,7 +26,7 @@ vec3 color(const ray& r, hitable *world, int depth){
     }
 }
 
-
+//
 int main(){
     const int W = 500; // tamanho horizontal da tela
     const int H = 500; // tamanho vertical da tela
