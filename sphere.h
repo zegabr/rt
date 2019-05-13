@@ -1,13 +1,15 @@
 #ifndef SPHEREH
 #define SPHEREH
 #include "hitable.h"
+#include "material.h"
 class sphere: public hitable {
     public:
     sphere(){}
-    sphere(vec3 cen, float r/*, vec3 col*/) : center(cen), radius(r)/*, color(col)*/{};
+    sphere(vec3 cen, float r, material *m/*, vec3 col*/) : center(cen), radius(r), mat_ptr(m)/*, color(col)*/{};
     virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
     vec3 center/*,color*/;//Cor foi declarada, mas não está sendo utilizada pela função Cor no main...
     float radius;
+    material *mat_ptr;
 };
 
 bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const{

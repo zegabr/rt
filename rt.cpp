@@ -5,21 +5,19 @@
 #include "hitablelist.h"
 #include "float.h"
 #include "camera.h"
+#include "material.h"
 using namespace std;
 
-vec3 random_in_unit_sphere() {
-    vec3 p;
-    do {
-        p = 2.0*vec3(drand48(),drand48(),drand48()) - vec3(1,1,1);
-    } while (p.squared_size() >= 1.0);
-    return p;
-}
-
-vec3 color(const ray& r, hitable *world){
+vec3 color(const ray& r, hitable *world, int depth){
     hit_record rec;
     if(world->hit(r,0.0001,FLT_MAX,rec)){
-        vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-        return 0.5*color(ray(rec.p, target-rec.p), world);
+        ray scattered;
+        vec3 attenuation;
+        if(depth < 50 && rec.mat_ptr->scatter(r,rec,attenuation,scattered)){
+            return attenuation*color(scattered,world,depth+1);
+        }else{
+            return vec3(0,0,0);
+        }
     }
     else{
         vec3 unit_direction = unit_vector(r.direction());
@@ -35,10 +33,12 @@ int main(){
     int ns = 100; // precisão do antialiasing
     ofstream out("teste.ppm");//arquivo resultado
     out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
-    hitable *list[2]; // array de objetos na imagem
-    list[0] = new sphere(vec3(0,0,-1),0.7); // esfera do centro
-    list[1] = new sphere(vec3(0,-100.5,-1),100); // esfera do "chão"
-    hitable *world = new hitable_list(list,2); // objeto que tem todas as imagens 
+    hitable *list[4]; // array de objetos na imagem
+    list[0] = new sphere(vec3(0,0,-1),0.7, new lambertian(vec3(0.8,0.3,0.3))); // esfera do centro
+    list[1] = new sphere(vec3(0,-100.5,-1),100, new lambertian(vec3(0.8,0.8,0.0))); // esfera do "chão"
+    list[2] = new sphere(vec3(1,0,-1), 0.5, new metal(vec3(0.8,0.6,0.2)));
+    list[3] = new sphere(vec3(-1,0,-1),0.5,new metal(vec3(0.8,0.8,0.8)));
+    hitable *world = new hitable_list(list,4); // objeto que tem todas as imagens 
     camera cam; // camera
     for(int j = H-1; j >= 0; j--){ // começa a preencher a imagem de cima para baixo
         for(int i = 0; i < W; i++){ // e da esquerda para a direita
@@ -47,8 +47,8 @@ int main(){
                 float u = float(i + drand48()) / float(W);
                 float v = float(j + drand48()) / float(H);
                 ray r = cam.get_ray(u,v);
-                vec3 p = r.point_at_parameter(1.0); // não entendi o que é, ta no código do cara
-                col += color(r,world);
+                vec3 p = r.point_at_parameter(2.0); // não entendi o que é, ta no código do cara
+                col += color(r,world,0);
             }
             col /= float(ns);
             col = vec3(sqrt(col.x),sqrt(col.y),sqrt(col.z));
