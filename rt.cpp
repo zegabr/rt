@@ -33,12 +33,13 @@ int main(){
     int ns = 100; // precisão do antialiasing
     ofstream out("teste.ppm");//arquivo resultado
     out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
-    hitable *list[4]; // array de objetos na imagem
+    hitable *list[5]; // array de objetos na imagem
     list[0] = new sphere(vec3(0,0,-1),0.7, new lambertian(vec3(0.8,0.3,0.3))); // esfera do centro
     list[1] = new sphere(vec3(0,-100.5,-1),100, new lambertian(vec3(0.8,0.8,0.0))); // esfera do "chão"
-    list[2] = new sphere(vec3(1,0,-1), 0.7, new metal(vec3(0.8,0.6,0.2)));
-    list[3] = new sphere(vec3(-1,0,-1),0.7,new metal(vec3(0.8,0.8,0.8)));
-    hitable *world = new hitable_list(list,4); // objeto que tem todas as imagens 
+    list[2] = new sphere(vec3(2,0,-1), 0.7, new metal(vec3(0.8,0.6,0.2), 1.0));
+    list[3] = new sphere(vec3(-2,0,-1),0.7,new dieletric(1.5));
+    list[4] = new sphere(vec3(-2,0,-1),-0.65, new dieletric(1.5));
+    hitable *world = new hitable_list(list,5); // objeto que tem todas as imagens
     camera cam; // camera
     for(int j = H-1; j >= 0; j--){ // começa a preencher a imagem de cima para baixo
         for(int i = 0; i < W; i++){ // e da esquerda para a direita

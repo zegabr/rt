@@ -13,7 +13,7 @@ class camera {
             // origin = vec3(0.0,0.0,0.0);
             
             //H=W=500
-            lower_left_corner = vec3(-5.0, -5.0, -1.0);
+            lower_left_corner = vec3(-5.0, -5.0, -2.0);
             horizontal = vec3(10.0,0.0,0.0);
             vertical = vec3(0.0,10.0,0.0);
             origin = vec3(0.0,0.0,0.0);
