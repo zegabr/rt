@@ -11,7 +11,7 @@ float random_digit() { // windows não possui drand48(), então criei essa funç
 #include "ray.h"
 #include "hitable.h"
 vec3 reflect(const vec3& v, const vec3& n){
-    return v-2*dot(v,n)*n;
+    return v - 2*dot(v,n)*n;
 }
 
 float schlick(float cosine, float refraction_index) { // equação de refração de vidro de Schlick
@@ -31,7 +31,6 @@ bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted) {
         return false;
     }
 }
-
 vec3 random_in_unit_sphere() {
     vec3 p;
     do {
@@ -43,6 +42,9 @@ vec3 random_in_unit_sphere() {
 class material{
     public:
         virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const = 0;
+        vec3 color;
+
+
 };
 class lambertian : public material{
     public:
@@ -53,6 +55,7 @@ class lambertian : public material{
             attenuation = color;
             return true;
         }
+        //cor agora está no material
         vec3 color; // troquei de albedo para color, representa melhor
 };
 class metal : public material {
@@ -64,6 +67,7 @@ class metal : public material {
             attenuation = color;
             return (dot(scattered.direction(),rec.normal) > 0);
         }
+        //cor agora está no material
         vec3 color; // troquei de albedo para color, representar melhor
         float fuzz; // nivel de "rigidez do metal"; quanto menor, mais ele reflete
 };
