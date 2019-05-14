@@ -5,19 +5,18 @@
 
 class camera {
     public:
-        camera() {
-            //H=200 W=100
-            // lower_left_corner = vec3(-2.0, -1.0, -1.0);
-            // horizontal = vec3(4.0,0.0,0.0);
-            // vertical = vec3(0.0,2.0,0.0);
-            // origin = vec3(0.0,0.0,0.0);
-            
-            //H=W=500
-            lower_left_corner = vec3(-5.0, -5.0, -2.0);
-            horizontal = vec3(10.0,0.0,0.0);
-            vertical = vec3(0.0,10.0,0.0);
-            origin = vec3(0.0,0.0,0.0);
-
+        camera(vec3 position, vec3 target, vec3 vup, float field_of_view, float aspect) { // field of view é vertical, não horizontal(depois pesquisar horizontal)
+            vec3 u, v, w;
+            float theta = field_of_view*M_PI/180;
+            float half_height = tan(theta/2);
+            float half_width = aspect * half_height;
+            origin = position;
+            w = unit_vector(position-target);
+            u = unit_vector(cross(vup, w));
+            v = cross(w, u);
+            lower_left_corner = origin - half_width*u - half_height*v - w;
+            horizontal = 2*half_width*u;
+            vertical = 2*half_height*v;
         }
 
         ray get_ray (float u, float v) { return ray(origin, lower_left_corner + u*horizontal + v*vertical - origin); }

@@ -33,14 +33,14 @@ int main(){
     int ns = 100; // precisão do antialiasing
     ofstream out("teste.ppm");//arquivo resultado
     out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
-    hitable *list[5]; // array de objetos na imagem
+    hitable *list[4]; // array de objetos na imagem
     list[0] = new sphere(vec3(0,0,-1),0.7, new lambertian(vec3(0.8,0.3,0.3))); // esfera do centro
     list[1] = new sphere(vec3(0,-100.5,-1),100, new lambertian(vec3(0.8,0.8,0.0))); // esfera do "chão"
     list[2] = new sphere(vec3(2,0,-1), 0.7, new metal(vec3(0.8,0.6,0.2), 1.0));
     list[3] = new sphere(vec3(-2,0,-1),0.7,new dieletric(1.5));
-    list[4] = new sphere(vec3(-2,0,-1),-0.65, new dieletric(1.5));
-    hitable *world = new hitable_list(list,5); // objeto que tem todas as imagens
-    camera cam; // camera
+    hitable *world = new hitable_list(list,4); // objeto que tem todas as imagens
+    camera cam(vec3(0,2,1), vec3(0,0,-1), vec3(0,1,0), 90, float(W)/float(H));
+    // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
     for(int j = H-1; j >= 0; j--){ // começa a preencher a imagem de cima para baixo
         for(int i = 0; i < W; i++){ // e da esquerda para a direita
             vec3 col(0,0,0); 
@@ -48,14 +48,13 @@ int main(){
                 float u = float(i + /*drand48()*/random_digit()) / float(W);
                 float v = float(j + /*drand48()*/random_digit()) / float(H);
                 ray r = cam.get_ray(u,v);
-                vec3 p = r.point_at_parameter(2.0); // não entendi o que é, ta no código do cara
                 col += color(r,world,0);
             }
             col /= float(ns);
-            col = vec3(sqrt(col.x),sqrt(col.y),sqrt(col.z));
-            int ir = int(255.99*col.x);
-            int ig = int(255.99*col.y);
-            int ib = int(255.99*col.z);
+            col = vec3(sqrt(col.x),sqrt(col.y),sqrt(col.z)); // serve pra ajustar a gamma de cores para visualizadores de imagem
+            int ir = int(255.99*col.x);  // vermelho do pixel
+            int ig = int(255.99*col.y); // verde do pixel
+            int ib = int(255.99*col.z); // azul do pixel
             out<<ir<<" "<<ig<<" "<<ib<<"\n"; 
         }
     }
