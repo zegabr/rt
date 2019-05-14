@@ -46,28 +46,28 @@ class material{
 };
 class lambertian : public material{
     public:
-        lambertian(const vec3& a) : albedo(a){}
+        lambertian(const vec3& a) : color(a){}
         virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const{
             vec3 target = rec.p + rec.normal + random_in_unit_sphere();
             scattered = ray(rec.p, target-rec.p);
-            attenuation = albedo;
+            attenuation = color;
             return true;
         }
-        vec3 albedo;
+        vec3 color; // troquei de albedo para color, representa melhor
 };
 class metal : public material {
     public:
-        metal(const vec3& a, float f): albedo(a){if (f < 1) fuzz = f; else fuzz = 1; }
+        metal(const vec3& a, float f): color(a){if (f < 1) fuzz = f; else fuzz = 1; }
         virtual bool scatter(const ray& r_in,const hit_record& rec, vec3& attenuation, ray& scattered) const{
             vec3 reflected = reflect(unit_vector(r_in.direction()),rec.normal);
             scattered = ray(rec.p,reflected + fuzz*random_in_unit_sphere());
-            attenuation = albedo;
+            attenuation = color;
             return (dot(scattered.direction(),rec.normal) > 0);
         }
-        vec3 albedo;
-        float fuzz;
+        vec3 color; // troquei de albedo para color, representar melhor
+        float fuzz; // nivel de "rigidez do metal"; quanto menor, mais ele reflete
 };
-class dieletric : public material {
+class dieletric : public material { // exemplos são agua, vidro, diamantes, etc
     public:
         dieletric(float ri) : refraction_index(ri) {}
         virtual bool scatter(const ray& r_in,const hit_record& rec, vec3& attenuation, ray& scattered) const{
@@ -100,6 +100,6 @@ class dieletric : public material {
             }
             return true;
         }
-        float refraction_index;
+        float refraction_index; // indice de refração de snell, recomendo ler sobre, tem no rt in a weekend
 };
 #endif

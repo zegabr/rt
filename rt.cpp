@@ -10,9 +10,9 @@ using namespace std;
 
 vec3 color(const ray& r, hitable *world, int depth){
     hit_record rec;
-    if(world->hit(r,0.001,FLT_MAX,rec)){
+    if(world->hit(r,0.001,FLT_MAX,rec)){ // se acertar algum objeto da imagem, entra nesse if
         ray scattered;
-        vec3 attenuation;
+        vec3 attenuation; // cor da esfera
         if(depth < 50 && rec.mat_ptr->scatter(r,rec,attenuation,scattered)){
             return attenuation*color(scattered,world,depth+1);
         }else{  
@@ -34,10 +34,10 @@ int main(){
     ofstream out("teste.ppm");//arquivo resultado
     out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
     hitable *list[4]; // array de objetos na imagem
-    list[0] = new sphere(vec3(0,0,-1),0.7, new lambertian(vec3(0.8,0.3,0.3))); // esfera do centro
-    list[1] = new sphere(vec3(0,-100.5,-1),100, new lambertian(vec3(0.8,0.8,0.0))); // esfera do "chão"
+    list[0] = new sphere(vec3(0,0,-1),0.7, new lambertian(vec3(0,0,1))); // esfera do centro
+    list[1] = new sphere(vec3(0,-1000.5,-1),1000, new lambertian(vec3(0.8,0.8,0.0))); // esfera do "chão"
     list[2] = new sphere(vec3(2,0,-1), 0.7, new metal(vec3(0.8,0.6,0.2), 1.0));
-    list[3] = new sphere(vec3(-2,0,-1),0.7,new dieletric(1.5));
+    list[3] = new sphere(vec3(-2,0,-1),0.7,new metal(vec3(0.8,0.6,0.2), 0.0));
     hitable *world = new hitable_list(list,4); // objeto que tem todas as imagens
     camera cam(vec3(0,2,1), vec3(0,0,-1), vec3(0,1,0), 90, float(W)/float(H));
     // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
