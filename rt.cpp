@@ -44,8 +44,8 @@ int main(){
         for(int i = 0; i < W; i++){ // e da esquerda para a direita
             vec3 col(0,0,0); 
             for(int s = 0;s < ns;s++) { // for do anti-aliasing: recomendo ler sobre para entender
-                float u = float(i + drand48()) / float(W);
-                float v = float(j + drand48()) / float(H);
+                float u = float(i + /*drand48()*/random_digit()) / float(W);
+                float v = float(j + /*drand48()*/random_digit()) / float(H);
                 ray r = cam.get_ray(u,v);
                 vec3 p = r.point_at_parameter(2.0); // não entendi o que é, ta no código do cara
                 col += color(r,world,0);

@@ -1,7 +1,12 @@
 #ifndef MATERIALH
 #define MATERIALH
+#include <random>
 
 struct hit_record;
+
+float random_digit() { // windows não possui drand48(), então criei essa função,  mas a preferência é drand48().
+    return (float(rand()) / float((RAND_MAX + 1.0))); // retorna float entre 0.0 e 1.0 (menos precisão que drand48())
+}
 
 #include "ray.h"
 #include "hitable.h"
@@ -11,7 +16,8 @@ vec3 reflect(const vec3& v, const vec3& n){
 vec3 random_in_unit_sphere() {
     vec3 p;
     do {
-        p = 2.0*vec3(drand48(),drand48(),drand48()) - vec3(1,1,1);
+        // p = 2.0*vec3(drand48(),drand48(),drand48()) - vec3(1,1,1);
+        p = 2.0*vec3(random_digit(), random_digit(), random_digit()); // utilizar em windows
     } while (p.squared_size() >= 1.0);
     return p;
 }
