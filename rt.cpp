@@ -28,7 +28,7 @@ vec3 phong(const hit_record &hitou, const camera &cam,  vec3 lightpos = vec3(100
     nl = dot(n,l), vr = dot(v,r);
     
    // vec3 Kd = 0.46*hitou.mat_ptr->color, Ks=0.82*hitou.mat_ptr->color;//pegar isso do material em hit_record
-    vec3 Kd = vec3(0.46,0.46,0.46), Ks = vec3(0.82,0.82,0.82);
+    vec3 Kd = 0.46*vec3(1.0,1.0,1.0), Ks = 0.82*vec3(1.0,1.0,1.0);
     float exponent = 10; 
     
     if(nl >= 0.0 and vr >= 0.0){
@@ -51,6 +51,8 @@ vec3 color(const ray& r, hitable *world, int depth){
         ray scattered;
         vec3 attenuation; // cor da esfera
         if(depth < 50  and rec.mat_ptr->scatter(r,rec,attenuation,scattered)){
+            
+            
             return phong(rec, cam);
     
             //return attenuation*color(scattered,world,depth+1);
