@@ -2,14 +2,16 @@
 #define SPHEREH
 #include "hitable.h"
 #include "material.h"
+#include "phongmaterial.h"
+
 class sphere: public hitable {
     public:
     sphere(){}
-    sphere(vec3 cen, float r, material *m/*, vec3 col*/) : center(cen), radius(r), mat_ptr(m)/*, color(col)*/{};
+    sphere(vec3 cen, float r, phongMaterial m/*, vec3 col*/) : center(cen), radius(r), material(m)/*, color(col)*/{};
     virtual bool hit(const ray& r, float tmin, float tmax, hit_record& rec) const;
     vec3 center/*,color*/;//Cor foi declarada, mas não está sendo utilizada pela função Cor no main...
     float radius;
-    material *mat_ptr;
+    phongMaterial material;
 };
 
 bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const{
@@ -24,7 +26,7 @@ bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const{
             rec.t = temp;
             rec.p = r.point_at_parameter(rec.t);
             rec.normal = (rec.p - center) / radius;
-            rec.mat_ptr = mat_ptr;
+            rec.material = material;
             return true;
         }
         temp = (-b + sqrt(discriminant))/a;
@@ -32,7 +34,7 @@ bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const{
             rec.t = temp;
             rec.p = r.point_at_parameter(rec.t);
             rec.normal = (rec.p - center) / radius;
-            rec.mat_ptr = mat_ptr;
+            rec.material = material;
             return true;
         }
     }
