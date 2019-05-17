@@ -15,4 +15,13 @@ class phongMaterial {
 
 };
 
+
+class phongLight {
+    public:
+        phongLight() {}
+        phongLight(vec3 c, vec3 p) : color(c), position(p) {}
+
+        vec3 color;
+        vec3 position;
+};
 #endif
