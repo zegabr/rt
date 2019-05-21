@@ -67,7 +67,7 @@ int main(){
     int W = 500; // tamanho horizontal da tela
     int H = 500; // tamanho vertical da tela
     int ns = 5; // precisão do antialiasing
-    camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H));
+    camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H));//inicializacao qualquer por causa de erro de compilacao
 
 
     fstream cena;
@@ -76,57 +76,43 @@ int main(){
     string action;
     map<string,phongMaterial> material_dictionary;
     vector<sphere> objects;
-    string sp = " ";
     while(cena >> action){
-    cout<<action<<sp;
         if(action == "res"){
             cena >> H >> W;
-            cout<<H<<sp<<W<<endl;
         }else if(action == "camera"){
             float px,py,pz,tx,ty,tz,ux,uy,uz,fov,f;
             cena >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov/* >> f*/;//ver esse f, provavel ser o depth of field
-            
-            cout<<sp<<px<<sp<<py<<sp<<pz<<sp<<tx<<sp<<ty<<sp<<tz<<sp<<ux<<sp<<uy<<sp<<uz<<sp<<fov<<endl;
-            
+    // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
             cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, float(W)/float(H));
         }else if(action == "material"){
             float r, g, b, kd, ks, ka, alpha;
             string name; 
             cena>> name >> r >> g >> b >> ka >> kd >> ks >> alpha;
-            
-            
-            cout<<name<<sp<<r<<sp<<g<<sp<<b<<sp<<ka<<sp<<kd<<sp<<ks<<sp<<alpha<<endl;
             material_dictionary[name] = phongMaterial(vec3(r,g,b),ka,kd,kd,alpha);
         }else if(action == "sphere"){
             float cx, cy, cz, radius;
             string materialname;
             cena >> cx >> cy >> cz >> radius >> materialname;
-            cout<<materialname<<endl;
-            //cout<<sp<<cx<<sp<<cy<<sp<<cz<<sp<<radius<<sp<<materialname<<endl;
             objects.push_back(sphere(vec3(cx,cy,cz), radius, material_dictionary[materialname])); 
         }
     }
 
-    cout<<material_dictionary.size()<<endl;
-    cout<<objects.size()<<endl;
-
-    for(auto p : material_dictionary) if(p.first=="")cout<<"why?"<<endl;
-
-
-    return 0;
     //ler cenaze aqui, salvar materiais em um map, esferas em um vector, depois inicializar world usando isso
-    
-    int QUANTIDADE = 12;//tamanho do vector de esferas 
+    vec3 LIGHTPOSITION = vec3(1.0,2.5,0.0);
+    phongLight light(BRANCO, LIGHTPOSITION); // 1 parametro é a cor, segundo é a posição
+
+
+    int QUANTIDADE = objects.size();//tamanho do vector de esferas 
     hitable *list[QUANTIDADE]; // array de objetos na imagem (inicializar com as esferas)
 
-    
+    for(int i=0;i<QUANTIDADE;i++){
+        sphere aux  = objects[i];
+        list[i]=new sphere(aux.center, aux.radius, aux.material);
+    }
 
-    vec3 LIGHTPOSITION = vec3(1.0,2.5,0.0);
     hitable *world = new hitable_list(list,QUANTIDADE); // objeto que tem todas as imagens
 
 
-    phongLight light(BRANCO, LIGHTPOSITION); // 1 parametro é a cor, segundo é a posição
-    // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
    
     ofstream out("teste.ppm");//arquivo resultado
     out<<"P3"<<'\n'<<W<<'\n'<<H<<'\n'<<"255"<<'\n'; 
