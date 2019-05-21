@@ -74,8 +74,7 @@ int main(){
     list[3] = new sphere(vec3(1.0,0.5,-1.0),0.7, phongMaterial(vec3(1.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
     hitable *world = new hitable_list(list,4); // objeto que tem todas as imagens
     phongLight light(vec3(1.0,1.0,1.0), vec3(-1.0,0.5,-1.0)); // 1 parametro é a cor, segundo é a posição
-    camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H));
-    // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
+    camera cam(90,-1.0, float(W)/float(H));    // camera (está posicionada na origem): 1 parametro é oplano em z onde estará o plano de visao, o segundo é o fov (vertical), terceiro é o aspect/ratio
     for(int j = H-1; j >= 0; j--){ // começa a preencher a imagem de cima para baixo
         for(int i = 0; i < W; i++){ // e da esquerda para a direita
             vec3 col(0,0,0); 
