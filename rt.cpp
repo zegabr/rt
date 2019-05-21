@@ -62,10 +62,30 @@ vec3 color(const ray& r, hitable *world, const camera &cam, const phongLight &li
 
 //
 int main(){
-    const int W = 500; // tamanho horizontal da tela
-    const int H = 500; // tamanho vertical da tela
+    int W = 500; // tamanho horizontal da tela
+    int H = 500; // tamanho vertical da tela
     int ns = 5; // precisão do antialiasing
+    camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H));
+
+
+    fstream cena;
+    cena.open("cenaze.txt");
+    string action;
+    cena >> action;
    
+    while(cena >> action){
+        if(action == "res"){
+            cin >> H >> W;
+        }else if(action == "camera"){
+            float px,py,pz,tx,ty,tz,ux,uy,uz,fov,f;
+            cin >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov >> f;
+            cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, f);
+        }else if(action == "material"){
+
+        }else if(action == "sphere")
+
+    }
+
     
     //ler cenaze aqui, salvar materiais em um map, esferas em um vector, depois inicializar world usando isso
     
@@ -80,7 +100,6 @@ int main(){
 
     phongLight light(BRANCO, LIGHTPOSITION); // 1 parametro é a cor, segundo é a posição
     // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
-    camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H));
    
     ofstream out("teste.ppm");//arquivo resultado
     out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 

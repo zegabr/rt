@@ -18,4 +18,3 @@ sphere 0 1.5 0 0.3 green_rubber
 sphere 0 0 0.5 black_plastic
 sphere 0 0 1 black_plastic
 sphere 0 0 1.5 black_plastic
-
