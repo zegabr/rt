@@ -1,0 +1,8 @@
+
+res 500 500
+camera px py pz tx ty tz ux uy uz fov f(depth of field)
+
+um ou mais dos seguintes:
+#material material_name r g b kd ks ka alpha
+
+#sphere cx cy cz r material_name
