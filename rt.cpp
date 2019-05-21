@@ -50,7 +50,7 @@ vec3 color(const ray& r, hitable *world, const camera &cam, const phongLight &li
     hit_record rec;
     if(world->hit(r,0.0000001,FLT_MAX,rec)){ // se acertar algum objeto da imagem, entra nesse if
         hit_record h;
-        if(world->hit(ray(rec.p + 1.00001*unit_vector(light.position), unit_vector(light.position)), 0.0000001,FLT_MAX, h)) {
+        if(world->hit(ray(rec.p, light.position), 0.0001,FLT_MAX, h)) {
                 return vec3(0.0,0.0,0.0);
         }
         return phong(rec,cam,light);
@@ -68,15 +68,33 @@ int main(){
    
     ofstream out("teste.ppm");//arquivo resultado
     out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
+    int QUANTIDADE = 13;
+    hitable *list[QUANTIDADE]; // array de objetos na imagem
+    list[0] = new sphere(vec3(0.0,-1000.5,-1.0),1000.0, phongMaterial(vec3(0.0,1.0,0.0), 0.2, 0.5, 0.6, 0.8)); // esfera do "chão"
+    
+    list[1] = new sphere(vec3(0.5,0,0),0.3, phongMaterial(vec3(0.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+    list[2] = new sphere(vec3(1,0,0),0.3, phongMaterial(vec3(0.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+    list[3] = new sphere(vec3(1.5,0,0),0.3, phongMaterial(vec3(0.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
    
-    hitable *list[4]; // array de objetos na imagem
-    list[0] = new sphere(vec3(0.0,0.5,-1.0),0.7, phongMaterial(vec3(0.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-    list[1] = new sphere(vec3(0.0,-1000.5,-1.0),1000.0, phongMaterial(vec3(0.0,1.0,0.0), 0.2, 0.5, 0.6, 0.8)); // esfera do "chão"
-    list[2] = new sphere(vec3(-1.0,0.5,-1.0), 0.01, phongMaterial(vec3(1.0,1.0,1.0),1.0,1.0,1.0,1.0));
-    list[3] = new sphere(vec3(1.0,0.5,-1.0),0.7, phongMaterial(vec3(1.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-    hitable *world = new hitable_list(list,4); // objeto que tem todas as imagens
-   
-    phongLight light(vec3(1.0,1.0,1.0), vec3(-1.0,0.5,-1.0)); // 1 parametro é a cor, segundo é a posição
+    list[4] = new sphere(vec3(0,0.5,0),0.3, phongMaterial(vec3(1,0,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+    list[5] = new sphere(vec3(0,1.0,0),0.3, phongMaterial(vec3(1,0,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+    list[6] = new sphere(vec3(0,1.5,0),0.3, phongMaterial(vec3(1,0,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+    
+    list[7] = new sphere(vec3(0,0,0.5),0.3, phongMaterial(vec3(0,1,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+    list[8] = new sphere(vec3(0,0,1),0.3, phongMaterial(vec3(0,1,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+    list[9] = new sphere(vec3(0,0,1.5),0.3, phongMaterial(vec3(0,1,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+
+
+    list[10] = new sphere(vec3(0,0,0),0.3, phongMaterial(BRANCO, 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+    
+    list[12] = new sphere(vec3(-2,0,-1.5),0.9, phongMaterial(vec3(1,1,0), 0.2, 0.5, 0.6, 1.0)); // esfera dE LUCAS
+    vec3 LIGHTPOSITION = vec3(-2.0,2.0,0.0);
+    list[11] = new sphere(LIGHTPOSITION,0.03, phongMaterial(BRANCO, 0.2, 0.5, 0.6, 1.0)); // esfera dA LUZ
+
+
+    hitable *world = new hitable_list(list,QUANTIDADE); // objeto que tem todas as imagens
+    
+    phongLight light(BRANCO, LIGHTPOSITION); // 1 parametro é a cor, segundo é a posição
     // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
     camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H));
    
