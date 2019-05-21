@@ -65,22 +65,29 @@ int main(){
     const int W = 500; // tamanho horizontal da tela
     const int H = 500; // tamanho vertical da tela
     int ns = 5; // precisão do antialiasing //quanto menor mais rapido
+    vec3 lightposition = vec3(-1.0,0.5,-3.0);
+
     ofstream out("teste.ppm");//arquivo resultado
     out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
+
     hitable *list[4]; // array de objetos na imagem
-    list[0] = new sphere(vec3(0.0,0.5,-1.0),0.7, phongMaterial(vec3(0.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-    list[1] = new sphere(vec3(0.0,-1000.5,-1.0),1000.0, phongMaterial(vec3(0.0,1.0,0.0), 0.2, 0.5, 0.6, 0.8)); // esfera do "chão"
-    list[2] = new sphere(vec3(-1.0,0.5,-1.0), 0.01, phongMaterial(vec3(1.0,1.0,1.0),1.0,1.0,1.0,1.0));
-    list[3] = new sphere(vec3(1.0,0.5,-1.0),0.7, phongMaterial(vec3(1.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+    list[0] = new sphere(vec3(0.0,-2.0,-5.0),0.5, phongMaterial(vec3(0.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera azul
+    list[1] = new sphere(vec3(1.0,-2.0,-5.0),0.5, phongMaterial(vec3(1.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera rosa
+    
+    
+    list[2] = new sphere(vec3(0.0,-1002.5,-5.0),1000.0, phongMaterial(vec3(0.0,1.0,0.0), 0.2, 0.5, 0.6, 0.8)); // esfera do "chão" verde
+    list[3] = new sphere(lightposition, 0.01, phongMaterial(vec3(1.0,1.0,1.0),1.0,1.0,1.0,1.0));//esfera representativa pra a luz
     hitable *world = new hitable_list(list,4); // objeto que tem todas as imagens
-    phongLight light(vec3(1.0,1.0,1.0), vec3(-1.0,0.5,-1.0)); // 1 parametro é a cor, segundo é a posição
-    camera cam(90,-1.0, float(W)/float(H));    // camera (está posicionada na origem): 1 parametro é oplano em z onde estará o plano de visao, o segundo é o fov (vertical), terceiro é o aspect/ratio
-    for(int j = H-1; j >= 0; j--){ // começa a preencher a imagem de cima para baixo
-        for(int i = 0; i < W; i++){ // e da esquerda para a direita
+    
+    phongLight light(vec3(1.0,1.0,1.0), lightposition); // 1 parametro é a cor, segundo é a posição
+    camera cam(100,-1.0, float(W)/float(H));    // camera (está posicionada na origem): 1 parametro é oplano em z onde estará o plano de visao, o segundo é o fov (vertical), terceiro é o aspect/ratio
+    
+    for(int i = H-1; i >= 0; i--){ // começa a preencher a imagem de cima para baixo
+        for(int j = 0; j < W; j++){ // e da esquerda para a direita
             vec3 col(0,0,0); 
             for(int s = 0;s < ns;s++) { // for do anti-aliasing: recomendo ler sobre para entender
-                float u = float(i + drand48()/*random_digit()*/) / float(W);
-                float v = float(j + drand48()/*random_digit()*/) / float(H);
+                float u = float(i + drand48()/*random_digit()*/) / float(H);
+                float v = float(j + drand48()/*random_digit()*/) / float(W);
                 ray r = cam.get_ray(u,v);
                 col += color(r,world,cam,light);
             }
