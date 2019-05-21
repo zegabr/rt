@@ -70,7 +70,7 @@ int main(){
     out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
     int QUANTIDADE = 12;
     hitable *list[QUANTIDADE]; // array de objetos na imagem
-    list[0] = new sphere(vec3(0.0,-1000.5,-1.0),1000.0, phongMaterial(vec3(0.0,1.0,0.0), 0.2, 0.5, 0.6, 0.8)); // esfera do "chão"
+    list[0] = new sphere(vec3(0.0,-1000.5,-1.0),1000.0, phongMaterial(vec3(0.0,1.0,0.0), 0.2, 1, 0.6, 0.8)); // esfera do "chão"
     
     list[1] = new sphere(vec3(0.5,0,0),0.3, phongMaterial(vec3(0.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
     list[2] = new sphere(vec3(1,0,0),0.3, phongMaterial(vec3(0.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
@@ -88,9 +88,9 @@ int main(){
     list[10] = new sphere(vec3(0,0,0),0.3, phongMaterial(BRANCO, 0.2, 0.5, 0.6, 1.0)); // esfera do centro
     
     list[11] = new sphere(vec3(-2,0,-1.5),0.9, phongMaterial(vec3(1,1,0), 0.2, 0.5, 0.6, 1.0)); // esfera dE LUCAS
-    vec3 LIGHTPOSITION = vec3(-2.0,2.0,0.0);
     
 
+    vec3 LIGHTPOSITION = vec3(1,2.5,0);
 
     hitable *world = new hitable_list(list,QUANTIDADE); // objeto que tem todas as imagens
     
