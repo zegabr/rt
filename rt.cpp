@@ -64,40 +64,26 @@ vec3 color(const ray& r, hitable *world, const camera &cam, const phongLight &li
 int main(){
     const int W = 500; // tamanho horizontal da tela
     const int H = 500; // tamanho vertical da tela
-    int ns = 100; // precisão do antialiasing
+    int ns = 5; // precisão do antialiasing
    
-    ofstream out("teste.ppm");//arquivo resultado
-    out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
-    int QUANTIDADE = 12;
-    hitable *list[QUANTIDADE]; // array de objetos na imagem
-    list[0] = new sphere(vec3(0.0,-1000.5,-1.0),1000.0, phongMaterial(vec3(0.0,1.0,0.0), 0.2, 1, 0.6, 0.8)); // esfera do "chão"
     
-    list[1] = new sphere(vec3(0.5,0,0),0.3, phongMaterial(vec3(0.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-    list[2] = new sphere(vec3(1,0,0),0.3, phongMaterial(vec3(0.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-    list[3] = new sphere(vec3(1.5,0,0),0.3, phongMaterial(vec3(0.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-   
-    list[4] = new sphere(vec3(0,0.5,0),0.3, phongMaterial(vec3(1,0,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-    list[5] = new sphere(vec3(0,1.0,0),0.3, phongMaterial(vec3(1,0,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-    list[6] = new sphere(vec3(0,1.5,0),0.3, phongMaterial(vec3(1,0,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+    //ler cenaze aqui, salvar materiais em um map, esferas em um vector, depois inicializar world usando isso
     
-    list[7] = new sphere(vec3(0,0,0.5),0.3, phongMaterial(vec3(0,1,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-    list[8] = new sphere(vec3(0,0,1),0.3, phongMaterial(vec3(0,1,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-    list[9] = new sphere(vec3(0,0,1.5),0.3, phongMaterial(vec3(0,1,0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
+    int QUANTIDADE = 12;//tamanho do vector de esferas 
+    hitable *list[QUANTIDADE]; // array de objetos na imagem (inicializar com as esferas)
 
-
-    list[10] = new sphere(vec3(0,0,0),0.3, phongMaterial(BRANCO, 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-    
-    list[11] = new sphere(vec3(-2,0,-1.5),0.9, phongMaterial(vec3(1,1,0), 0.2, 0.5, 0.6, 1.0)); // esfera dE LUCAS
     
 
-    vec3 LIGHTPOSITION = vec3(1,2.5,0);
-
+    vec3 LIGHTPOSITION = vec3(1.0,2.5,0.0);
     hitable *world = new hitable_list(list,QUANTIDADE); // objeto que tem todas as imagens
-    
+
+
     phongLight light(BRANCO, LIGHTPOSITION); // 1 parametro é a cor, segundo é a posição
     // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
     camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H));
    
+    ofstream out("teste.ppm");//arquivo resultado
+    out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
     for(int j = H-1; j >= 0; j--){ // começa a preencher a imagem de cima para baixo
         for(int i = 0; i < W; i++){ // e da esquerda para a direita
             vec3 col(0,0,0); 
