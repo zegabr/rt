@@ -12,7 +12,8 @@ using namespace std;
 
 vec3 PRETO = vec3(0.0,0.0,0.0), BRANCO = vec3(1.0,1.0,1.0);
 
-vec3 phong(const hit_record &hitou, const camera &cam, const phongLight *lights, const hitable *world){
+vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world){
+
     vec3 n,l,r,v;
     
 
@@ -26,15 +27,15 @@ vec3 phong(const hit_record &hitou, const camera &cam, const phongLight *lights,
     vec3 diffuse = vec3(0,0,0);
     vec3 specular = vec3(0,0,0);
 
-    for(int i = 0;i<2;i++) {
+    for(int i = 0;i<world->numLights;i++) {
         hit_record h;
-        if(world->hit(ray(hitou.p,lights[i].position - hitou.p), 0.001, FLT_MAX, h)) {
+        if(world->hit(ray(hitou.p,world->lights[i].position - hitou.p), 0.001, FLT_MAX, h)) {
             diffuse = diffuse + vec3(0,0,0);
             specular = specular + vec3(0,0,0);
-            coefficient = coefficient + lights[i].color;
+            coefficient = coefficient + world->lights[i].color;
         } else {
-            coefficient = coefficient + lights[i].color;
-            l = unit_vector(lights[i].position - hitou.p); // direção da luz
+            coefficient = coefficient + world->lights[i].color;
+            l = unit_vector(world->lights[i].position - hitou.p); // direção da luz
             n = unit_vector(hitou.normal); // normal no ponto que hitou
             v = unit_vector(cam.origin - hitou.p); // view direction
 
@@ -46,14 +47,14 @@ vec3 phong(const hit_record &hitou, const camera &cam, const phongLight *lights,
             float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
 
             if(cosine > 0.0) {
-                diffuse = diffuse + Kd * lights[i].color * cosine;
-                specular = specular + Ks*lights[i].color*pow(max(0.0f, vr),exponent);
+                diffuse = diffuse + Kd * world->lights[i].color * cosine;
+                specular = specular + Ks*world->lights[i].color*pow(max(0.0f, vr),exponent);
            
             }
         }
     }
     
-    coefficient = coefficient/2;
+    coefficient = coefficient/world->numLights;
     vec3 ambient = coefficient*Ka;
     
     
@@ -61,14 +62,10 @@ vec3 phong(const hit_record &hitou, const camera &cam, const phongLight *lights,
 
 }
 
-vec3 color(const ray& r, const hitable *world, const camera &cam, const phongLight *lights){
+vec3 color(const ray& r, const hitable_list *world, const camera &cam){
     hit_record rec;
     if(world->hit(r,0.00000001,FLT_MAX,rec)){ // se acertar algum objeto da imagem, entra nesse if
-        //hit_record h;
-        //if(world->hit(ray(rec.p, lights[0].position-rec.p), 0.001,FLT_MAX, h)) {
-        //    return vec3(0.0,0.0,0.0);
-        //}
-        return phong(rec,cam,lights,world);
+        return phong(rec,cam,world);
     }
     else{
         return vec3(0.0,0.0,0.0);
@@ -82,16 +79,19 @@ int main(){
     int ns = 15; // precisão do antialiasing
     ofstream out("teste.ppm");//arquivo resultado
     out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
+
     hitable *list[3]; // array de objetos na imagem
     list[0] = new sphere(vec3(0.0,1.0,-1.0),0.2, phongMaterial(vec3(1.0,0.0,0.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
     list[1] = new sphere(vec3(0.0,-1000.5,-1.0),1000.0, phongMaterial(vec3(0.0,1.0,0.0), 0.2, 0.5, 0.6, 0.8)); // esfera do "chão"
     //list[2] = new sphere(vec3(0.0,2.0,-1.0), 0.01, phongMaterial(vec3(1.0,1.0,1.0),1.0,1.0,1.0,1.0));
     list[2] = new sphere(vec3(2.0,1.0,-1.0),0.7, phongMaterial(vec3(1.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); // esfera do centro
-    hitable *world = new hitable_list(list,3); // objeto que tem todas as imagens
+
     phongLight lights[2];
     lights[0] = phongLight(vec3(1.0,1.0,1.0), vec3(2.0,3.0,-1.0)); // 1 parametro é a cor, segundo é a posição
     //lights[1] = phongLight(vec3(1.0,1.0,1.0), vec3(0.0,3.0,-1.0)); // 1 parametro é a cor, segundo é a posição
     lights[1] = phongLight(vec3(1.0,1.0,1.0), vec3(-2.0,3.0,-1.0)); // 1 parametro é a cor, segundo é a posição
+
+    hitable_list *world = new hitable_list(list,3,lights,2); // objeto que tem todas as imagens e luzes
     
     camera cam(vec3(0.0,3.0,4.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H));
     // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
@@ -102,7 +102,7 @@ int main(){
                 float u = float(i + drand48()/*random_digit()*/) / float(W);
                 float v = float(j + drand48()/*random_digit()*/) / float(H);
                 ray r = cam.get_ray(u,v);
-                col += color(r,world,cam,lights);
+                col += color(r,world,cam);
             }
 
             col /= float(ns);
