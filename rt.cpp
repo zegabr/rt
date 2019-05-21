@@ -64,7 +64,7 @@ vec3 color(const ray& r, hitable *world, const camera &cam, const phongLight &li
 int main(){
     const int W = 500; // tamanho horizontal da tela
     const int H = 500; // tamanho vertical da tela
-    int ns = 50; // precisão do antialiasing
+    int ns = 5; // precisão do antialiasing //quanto menor mais rapido
     ofstream out("teste.ppm");//arquivo resultado
     out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
     hitable *list[4]; // array de objetos na imagem
