@@ -3,6 +3,8 @@
 #include<fstream>
 #include<cmath>
 #include<algorithm>
+#include<vector>
+#include<map>
 #include "sphere.h"
 #include "hitablelist.h"
 #include "float.h"
@@ -70,23 +72,48 @@ int main(){
 
     fstream cena;
     cena.open("cenaze.txt");
+
     string action;
-    cena >> action;
-   
+    map<string,phongMaterial> material_dictionary;
+    vector<sphere> objects;
+    string sp = " ";
     while(cena >> action){
+    cout<<action<<sp;
         if(action == "res"){
-            cin >> H >> W;
+            cena >> H >> W;
+            cout<<H<<sp<<W<<endl;
         }else if(action == "camera"){
             float px,py,pz,tx,ty,tz,ux,uy,uz,fov,f;
-            cin >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov >> f;
-            cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, f);
+            cena >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov/* >> f*/;//ver esse f, provavel ser o depth of field
+            
+            cout<<sp<<px<<sp<<py<<sp<<pz<<sp<<tx<<sp<<ty<<sp<<tz<<sp<<ux<<sp<<uy<<sp<<uz<<sp<<fov<<endl;
+            
+            cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, float(W)/float(H));
         }else if(action == "material"){
-
-        }else if(action == "sphere")
-
+            float r, g, b, kd, ks, ka, alpha;
+            string name; 
+            cena>> name >> r >> g >> b >> ka >> kd >> ks >> alpha;
+            
+            
+            cout<<name<<sp<<r<<sp<<g<<sp<<b<<sp<<ka<<sp<<kd<<sp<<ks<<sp<<alpha<<endl;
+            material_dictionary[name] = phongMaterial(vec3(r,g,b),ka,kd,kd,alpha);
+        }else if(action == "sphere"){
+            float cx, cy, cz, radius;
+            string materialname;
+            cena >> cx >> cy >> cz >> radius >> materialname;
+            cout<<materialname<<endl;
+            //cout<<sp<<cx<<sp<<cy<<sp<<cz<<sp<<radius<<sp<<materialname<<endl;
+            objects.push_back(sphere(vec3(cx,cy,cz), radius, material_dictionary[materialname])); 
+        }
     }
 
-    
+    cout<<material_dictionary.size()<<endl;
+    cout<<objects.size()<<endl;
+
+    for(auto p : material_dictionary) if(p.first=="")cout<<"why?"<<endl;
+
+
+    return 0;
     //ler cenaze aqui, salvar materiais em um map, esferas em um vector, depois inicializar world usando isso
     
     int QUANTIDADE = 12;//tamanho do vector de esferas 
@@ -102,7 +129,7 @@ int main(){
     // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
    
     ofstream out("teste.ppm");//arquivo resultado
-    out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
+    out<<"P3"<<'\n'<<W<<'\n'<<H<<'\n'<<"255"<<'\n'; 
     for(int j = H-1; j >= 0; j--){ // começa a preencher a imagem de cima para baixo
         for(int i = 0; i < W; i++){ // e da esquerda para a direita
             vec3 col(0,0,0); 
@@ -118,7 +145,7 @@ int main(){
             int ir = int(255.99*col.x);  // vermelho do pixel
             int ig = int(255.99*col.y); // verde do pixel
             int ib = int(255.99*col.z); // azul do pixel
-            out << ir << " " << ig << " " << ib << "\n";
+            out<<ir<<" "<<ig<<" "<<ib<<"\n";
         }
     }
 
