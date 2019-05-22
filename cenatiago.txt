@@ -1,0 +1,16 @@
+res 500 500
+
+camera 0 4 4  0 2 0  0 1 0  90  3.0
+
+material m1 0 0 1  1.0 1.0 1.0  1.0
+material m2 1 0 1  0.2 0.5 0.6  1
+material floor 0 1 0  0.8 0.5 0.6  0.2
+
+sphere 0.5 0 0 0.3 floor
+sphere 0 1 -1 0.2 m1
+sphere 2 1 -1 0.7 m2
+sphere 0 -1000.5 -1 1000 floor
+
+light 1 1 1 2 7 -1
+light 1 1 1 1 3 -1
+light 1 1 1 0 3 -1

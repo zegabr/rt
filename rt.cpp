@@ -69,47 +69,20 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam){
     }
 }
 
-//
+
 int main(){
-    /*
-    const int W = 500; // tamanho horizontal da tela
-    const int H = 500; // tamanho vertical da tela
-    int ns = 100; // precisão do antialiasing
-    ofstream out("teste.ppm");//arquivo resultado
-    out << "P3" << '\n' << W << '\n' << H << '\n' << "255" << '\n'; 
-
-    hitable *list[3]; // array de objetos na imagem
-    // 1 parametro é posição do centro, segundo o raio, terceiro é um material que tem cor, Ka, Kd, Ks e alpha
-    list[0] = new sphere(vec3(0.0,1.0,-1.0),0.2, phongMaterial(vec3(0.0,0.0,1.0), 1.0, 1.0, 1.0, 1.0)); 
-    list[1] = new sphere(vec3(0.0,-1000.5,-1.0),1000.0, phongMaterial(vec3(0.0,1.0,0.0), 0.8, 0.5, 0.6, 0.2)); 
-    //list[2] = new sphere(vec3(0.0,2.0,-1.0), 0.01, phongMaterial(vec3(1.0,1.0,1.0),1.0,1.0,1.0,1.0));
-    list[2] = new sphere(vec3(2.0,1.0,-1.0),0.7, phongMaterial(vec3(1.0,0.0,1.0), 0.2, 0.5, 0.6, 1.0)); 
-
-    phongLight lights[2];
-    lights[0] = phongLight(vec3(1.0,1.0,1.0), vec3(2.0,7.0,-1.0)); // 1 parametro é a cor, segundo é a posição
-    //lights[1] = phongLight(vec3(1.0,1.0,1.0), vec3(0.0,3.0,-1.0)); 
-    //lights[0] = phongLight(vec3(1.0,1.0,1.0), vec3(1.0,3.0,-1.0)); 
-
-    hitable_list *world = new hitable_list(list,3,lights,1); // objeto que tem todas as imagens e luzes
-    
-    camera cam(vec3(0.0,4.0,4.0), vec3(0.0,2.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H), 4.0);  //Fazer arquivo de cenário com essas esferas
-    //Comentário para não perder os dados antes do MERGE de zeh com Tiago.
-    */
     int W = 500; // tamanho horizontal da tela
     int H = 500; // tamanho vertical da tela
     int ns = 5; // precisão do antialiasing
     camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H) , 0.7);//inicializacao qualquer por causa de erro de compilacao
-
-    phongLight lights[2];
-    lights[0] = phongLight(vec3(1.0,1.0,1.0), vec3(2.0,7.0,-1.0)); // 1 parametro é a cor, segundo é a posição
-    //lights[1] = phongLight(vec3(1.0,1.0,1.0), vec3(0.0,3.0,-1.0)); 
-    //lights[0] = phongLight(vec3(1.0,1.0,1.0), vec3(1.0,3.0,-1.0)); 
+ 
     fstream cena;
     cena.open("cenaze.txt");
 
     string action;
     map<string,phongMaterial> material_dictionary;
     vector<sphere> objects;
+    vector<phongLight> lights;
     while(cena >> action){
         if(action == "res"){
             cena >> H >> W;
@@ -128,22 +101,33 @@ int main(){
             string materialname;
             cena >> cx >> cy >> cz >> radius >> materialname;
             objects.push_back(sphere(vec3(cx,cy,cz), radius, material_dictionary[materialname])); 
+        }else if(action == "light"){
+            float r, g, b,px,py,pz;
+            cena >> r >> g >> b >> px >> py >> pz;
+            lights.push_back(phongLight(vec3(r,g,b), vec3(px,py,pz)));
         }
     }
 
-    vec3 LIGHTPOSITION = vec3(1.0,2.5,0.0);
-    phongLight light(BRANCO, LIGHTPOSITION); // 1 parametro é a cor, segundo é a posição
-
-
     int QUANTIDADE = objects.size();//tamanho do vector de esferas 
-    hitable *list[QUANTIDADE]; // array de objetos na imagem (inicializar com as esferas)
+    int numLights = lights.size();
 
+    cout<<QUANTIDADE<<" esferas"<<endl;
+    cout<<material_dictionary.size()<<" materiais"<<endl;
+    cout<<numLights<<" luzes"<<endl;
+
+    hitable *list[QUANTIDADE]; // array de objetos na imagem (inicializar com as esferas)
     for(int i=0;i<QUANTIDADE;i++){
         sphere aux  = objects[i];
         list[i]=new sphere(aux.center, aux.radius, aux.material);
     }
 
-    hitable_list *world = new hitable_list(list,QUANTIDADE,lights,1); // objeto que tem todas as imagens
+    phongLight lightList[numLights];
+    for(int i=0;i<numLights;i++){
+        phongLight aux  = lights[i];
+        lightList[i]= phongLight(aux.color, aux.position);
+    }
+
+    hitable_list *world = new hitable_list(list,QUANTIDADE,lightList,numLights); // objeto que tem todas as imagens
 
 
    

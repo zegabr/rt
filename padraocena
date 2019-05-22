@@ -4,5 +4,5 @@ camera px py pz tx ty tz ux uy uz fov dist
 
 um ou mais dos seguintes:
 #material material_name r g b ka kd ks alpha
-
 #sphere cx cy cz r material_name
+#light r g b px py pz

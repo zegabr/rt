@@ -9,10 +9,10 @@ class hitable_list: public hitable{
         hitable_list(hitable **l,int n, phongLight *li, int m) {list= l ;numObjetos=n;lights = li;numLights = m; }
         virtual bool hit(const ray& r,float tmin,float tmax,hit_record& rec)const;
         hitable **list;
-	phongLight *lights;
+	    phongLight *lights;
 	
         int numObjetos;
-	int numLights;
+	    int numLights;
 };
 
 bool hitable_list::hit(const ray& r, float t_min, float t_max, hit_record& rec) const{
