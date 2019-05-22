@@ -3,6 +3,8 @@
 #include<fstream>
 #include<cmath>
 #include<algorithm>
+#include<vector>
+#include<map>
 #include "sphere.h"
 #include "hitablelist.h"
 #include "float.h"
@@ -69,6 +71,7 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam){
 
 //
 int main(){
+    /*
     const int W = 500; // tamanho horizontal da tela
     const int H = 500; // tamanho vertical da tela
     int ns = 100; // precisão do antialiasing
@@ -89,8 +92,61 @@ int main(){
 
     hitable_list *world = new hitable_list(list,3,lights,1); // objeto que tem todas as imagens e luzes
     
-    camera cam(vec3(0.0,4.0,4.0), vec3(0.0,2.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H), 4.0);
+    camera cam(vec3(0.0,4.0,4.0), vec3(0.0,2.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H), 4.0);  //Fazer arquivo de cenário com essas esferas
+    //Comentário para não perder os dados antes do MERGE de zeh com Tiago.
+    */
+    int W = 500; // tamanho horizontal da tela
+    int H = 500; // tamanho vertical da tela
+    int ns = 5; // precisão do antialiasing
+    camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H) , 0.7);//inicializacao qualquer por causa de erro de compilacao
+
+
+    fstream cena;
+    cena.open("cenaze.txt");
+
+    string action;
+    map<string,phongMaterial> material_dictionary;
+    vector<sphere> objects;
+    while(cena >> action){
+        if(action == "res"){
+            cena >> H >> W;
+        }else if(action == "camera"){
+            float px,py,pz,tx,ty,tz,ux,uy,uz,fov,dist;
+            cena >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov >>dist/* >> f*/;//ver esse f, provavel ser o depth of field
     // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
+            cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, float(W)/float(H), dist);
+        }else if(action == "material"){
+            float r, g, b, kd, ks, ka, alpha;
+            string name; 
+            cena>> name >> r >> g >> b >> ka >> kd >> ks >> alpha;
+            material_dictionary[name] = phongMaterial(vec3(r,g,b),ka,kd,kd,alpha);
+        }else if(action == "sphere"){
+            float cx, cy, cz, radius;
+            string materialname;
+            cena >> cx >> cy >> cz >> radius >> materialname;
+            objects.push_back(sphere(vec3(cx,cy,cz), radius, material_dictionary[materialname])); 
+        }
+    }
+
+    //ler cenaze aqui, salvar materiais em um map, esferas em um vector, depois inicializar world usando isso
+    vec3 LIGHTPOSITION = vec3(1.0,2.5,0.0);
+    phongLight light(BRANCO, LIGHTPOSITION); // 1 parametro é a cor, segundo é a posição
+
+
+    int QUANTIDADE = objects.size();//tamanho do vector de esferas 
+    hitable *list[QUANTIDADE]; // array de objetos na imagem (inicializar com as esferas)
+
+    for(int i=0;i<QUANTIDADE;i++){
+        sphere aux  = objects[i];
+        list[i]=new sphere(aux.center, aux.radius, aux.material);
+    }
+
+    hitable *world = new hitable_list(list,QUANTIDADE); // objeto que tem todas as imagens
+
+
+   
+    ofstream out("teste.ppm");//arquivo resultado
+    out<<"P3"<<'\n'<<W<<'\n'<<H<<'\n'<<"255"<<'\n'; 
     for(int j = H-1; j >= 0; j--){ // começa a preencher a imagem de cima para baixo
         for(int i = 0; i < W; i++){ // e da esquerda para a direita
             vec3 col(0,0,0); 
@@ -105,8 +161,8 @@ int main(){
             int ir = int(255.99*col.x);  // vermelho do pixel
             int ig = int(255.99*col.y); // verde do pixel
             int ib = int(255.99*col.z); // azul do pixel
-            out << ir << " " << ig << " " << ib << "\n";
+            out<<ir<<" "<<ig<<" "<<ib<<"\n";
         }
     }
 
-}        
+} 
