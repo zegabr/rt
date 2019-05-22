@@ -73,11 +73,12 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam){
 int main(){
     int W = 500; // tamanho horizontal da tela
     int H = 500; // tamanho vertical da tela
-    int ns = 1; // precisão do antialiasing
+    int ns = 50; // precisão do antialiasing
     camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H) , 0.7);//inicializacao qualquer por causa de erro de compilacao
  
     fstream cena;
-    cena.open("cenaze.txt");
+    cena.open("cenaze.txt");//arquivo descricao
+    ofstream out("ze.ppm");//arquivo resultado
 
     string action;
     map<string,phongMaterial> material_dictionary;
@@ -131,7 +132,6 @@ int main(){
 
 
    
-    ofstream out("teste.ppm");//arquivo resultado
     out<<"P3"<<'\n'<<W<<'\n'<<H<<'\n'<<"255"<<'\n'; 
     for(int j = H-1; j >= 0; j--){ // começa a preencher a imagem de cima para baixo
         for(int i = 0; i < W; i++){ // e da esquerda para a direita
