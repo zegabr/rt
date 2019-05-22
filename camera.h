@@ -13,9 +13,9 @@ vec3 random_in_unit_disk() {
 
 class camera {
     public:
-        camera(vec3 position, vec3 target, vec3 vup, float field_of_view, float aspect, float distance) { // field of view é vertical, não horizontal(depois pesquisar horizontal)
+        camera(vec3 position, vec3 target, vec3 vup, float fov, float aspect, float distance) { // field of view é vertical, não horizontal(depois pesquisar horizontal)
             vec3 u, v, w;
-            float theta = field_of_view*M_PI/180;
+            float theta = fov*M_PI/180;
             float half_height = distance*tan(theta/2);
             float half_width = aspect * half_height;
             origin = position;

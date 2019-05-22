@@ -73,7 +73,7 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam){
 int main(){
     int W = 500; // tamanho horizontal da tela
     int H = 500; // tamanho vertical da tela
-    int ns = 50; // precisão do antialiasing
+    int ns = 1; // precisão do antialiasing
     camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H) , 0.7);//inicializacao qualquer por causa de erro de compilacao
  
     fstream cena;
