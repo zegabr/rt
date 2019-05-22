@@ -100,7 +100,10 @@ int main(){
     int ns = 5; // precisão do antialiasing
     camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H) , 0.7);//inicializacao qualquer por causa de erro de compilacao
 
-
+    phongLight lights[2];
+    lights[0] = phongLight(vec3(1.0,1.0,1.0), vec3(2.0,7.0,-1.0)); // 1 parametro é a cor, segundo é a posição
+    //lights[1] = phongLight(vec3(1.0,1.0,1.0), vec3(0.0,3.0,-1.0)); 
+    //lights[0] = phongLight(vec3(1.0,1.0,1.0), vec3(1.0,3.0,-1.0)); 
     fstream cena;
     cena.open("cenaze.txt");
 
@@ -141,7 +144,7 @@ int main(){
         list[i]=new sphere(aux.center, aux.radius, aux.material);
     }
 
-    hitable *world = new hitable_list(list,QUANTIDADE); // objeto que tem todas as imagens
+    hitable_list *world = new hitable_list(list,QUANTIDADE,lights,1); // objeto que tem todas as imagens
 
 
    
