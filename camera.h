@@ -3,18 +3,26 @@
 
 #include "ray.h"
 
+vec3 random_in_unit_disk() {
+    vec3 p;
+    do {
+        p = 2.0*vec3(drand48(),drand48(),0) - vec3(1,1,0);
+    } while (dot(p,p) >= 1.0);
+    return p;
+}
+
 class camera {
     public:
-        camera(vec3 position, vec3 target, vec3 vup, float field_of_view, float aspect) { // field of view é vertical, não horizontal(depois pesquisar horizontal)
+        camera(vec3 position, vec3 target, vec3 vup, float field_of_view, float aspect, float distance) { // field of view é vertical, não horizontal(depois pesquisar horizontal)
             vec3 u, v, w;
             float theta = field_of_view*M_PI/180;
-            float half_height = tan(theta/2);
+            float half_height = distance*tan(theta/2);
             float half_width = aspect * half_height;
             origin = position;
             w = unit_vector(position-target); // t
             u = unit_vector(cross(vup, w)); // b
             v = cross(w, u); // v 
-            lower_left_corner = origin - half_width*u - half_height*v - w;
+            lower_left_corner = w*distance - half_width*u - half_height*v;
             horizontal = 2*half_width*u;
             vertical = 2*half_height*v;
         }
