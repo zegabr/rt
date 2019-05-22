@@ -73,8 +73,8 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam){
 int main(){
     int W = 500; // tamanho horizontal da tela
     int H = 500; // tamanho vertical da tela
-    int ns = 50; // precisão do antialiasing
-    camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H) , 0.7);//inicializacao qualquer por causa de erro de compilacao
+    int ns = 100; // precisão do antialiasing
+    camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H) , 2.0,0.7);//inicializacao qualquer por causa de erro de compilacao
  
     fstream cena;
     cena.open("cenaze.txt");//arquivo descricao
@@ -88,10 +88,12 @@ int main(){
         if(action == "res"){
             cena >> H >> W;
         }else if(action == "camera"){
-            float px,py,pz,tx,ty,tz,ux,uy,uz,fov,dist;
-            cena >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov >>dist/* >> f*/;//ver esse f, provavel ser o depth of field
+            float px,py,pz,tx,ty,tz,ux,uy,uz,fov,aperture,dist;
+            cena >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov >>aperture/* >> f*/;//ver esse f, provavel ser o depth of field
             // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
-            cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, float(W)/float(H), dist);
+            vec3 direction(tx-px,ty-py,tz-pz);
+            dist = direction.size();
+            cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, float(W)/float(H), aperture ,dist);
         }else if(action == "material"){
             float r, g, b, kd, ks, ka, alpha;
             string name; 

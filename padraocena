@@ -1,6 +1,6 @@
 
 res H W
-camera px py pz tx ty tz ux uy uz fov dist
+camera px py pz tx ty tz ux uy uz fov aperture
 
 um ou mais dos seguintes:
 #material material_name r g b ka kd ks alpha
