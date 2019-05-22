@@ -6,15 +6,16 @@ material red 1 0 0  0.0 0.1 0.5  1
 material green  0 1 0  0.2 0.5 0.6  0.8
 material gold 1 1 0.0745  0.2 0.75 0.628 1
 
-material floor 1 1 1  0.2 0.5 0.6  0.5
-material wall1 1 1 0.7 0.2 0.5 0.6 0.5
-material back 1 0.7 1 0.2 0.5 0.6 0.5
-material wall2 0.7 1 1 0.2 0.5 0.6 0.5
+material white 1 1 1  0.2 0.5 0.6  0.5
+material yellow 1 1 0.7 0.2 0.5 0.6 0.5
+material pink 1 0.7 1 0.2 0.5 0.6 0.5
+material blue 0.7 1 1 0.2 0.5 0.6 0.5
 
-sphere 0 -2000.5 0 2000 floor
-sphere -2.5 0 0 2 back
-sphere 4.5 0 0 2 wall1
-sphere 1 0 -2.5 2 wall2
+sphere 0 -1000.5 0 1000 white
+
+sphere -3.5 0 0 2 pink
+sphere 4.5 0 0 2 yellow
+sphere 1 0 -2.5 2 blue
 
 sphere 0.5 0 0 0.3 gold
 sphere 1 0 0 0.3 gold
@@ -27,6 +28,6 @@ sphere 0 0 1 0.3 red
 sphere 0 0 1.5 0.3 red
 
 light 1 1 1  1.5 1.5 0 
- 
+
 light 1 1 1  0 1.5 1.5  
-light 1 1 1  0 2 0 
+light 1 1 1  0 3 0 
