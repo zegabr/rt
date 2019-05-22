@@ -116,7 +116,7 @@ int main(){
         }else if(action == "camera"){
             float px,py,pz,tx,ty,tz,ux,uy,uz,fov,dist;
             cena >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov >>dist/* >> f*/;//ver esse f, provavel ser o depth of field
-    // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
+            // camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
             cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, float(W)/float(H), dist);
         }else if(action == "material"){
             float r, g, b, kd, ks, ka, alpha;
@@ -131,7 +131,6 @@ int main(){
         }
     }
 
-    //ler cenaze aqui, salvar materiais em um map, esferas em um vector, depois inicializar world usando isso
     vec3 LIGHTPOSITION = vec3(1.0,2.5,0.0);
     phongLight light(BRANCO, LIGHTPOSITION); // 1 parametro é a cor, segundo é a posição
 
