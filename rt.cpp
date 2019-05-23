@@ -10,6 +10,7 @@
 #include "float.h"
 #include "camera.h"
 #include "material.h"
+#include "plane.h"
 using namespace std;
 
 vec3 PRETO = vec3(0.0,0.0,0.0), BRANCO = vec3(1.0,1.0,1.0);
