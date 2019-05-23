@@ -5,12 +5,16 @@
 class phongMaterial {
     public:
         phongMaterial() {}
-        phongMaterial(vec3 c, float a, float d, float s, float alp) : color(c), Ka(a), Ks(s), Kd(d), alpha(alp) {}
+        phongMaterial(vec3 c, float a, float d, float s, float alp) : color(c), alpha(alp) {
+            Ka = c*a;
+            Kd = c*d;
+            Ks = c*s;
+        }
 
         vec3 color;
-        float Ka;
-        float Ks;
-        float Kd;
+        vec3 Ka;
+        vec3 Ks;
+        vec3 Kd;
         float alpha;
 
 };

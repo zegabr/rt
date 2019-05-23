@@ -10,7 +10,6 @@
 #include "hitablelist.h"
 #include "float.h"
 #include "camera.h"
-#include "material.h"
 using namespace std;
 
 vec3 PRETO = vec3(0.0,0.0,0.0), BRANCO = vec3(1.0,1.0,1.0);
@@ -18,11 +17,6 @@ vec3 PRETO = vec3(0.0,0.0,0.0), BRANCO = vec3(1.0,1.0,1.0);
 vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world){
 
     vec3 n,l,r,v;
-    
-
-    vec3 Ka = hitou.material.color*hitou.material.Ka;
-    vec3 Kd = hitou.material.color*hitou.material.Kd;
-    vec3 Ks = hitou.material.color*hitou.material.Ks;
 
     float alpha = hitou.material.alpha*128; // isso aqui é o alpha do material, ele deve ir de 0.0 a 1.0 preferencialmente
 
@@ -36,6 +30,8 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
             diffuse = diffuse + vec3(0,0,0);
             specular = specular + vec3(0,0,0);
         } else {
+            //float distance = vec3(world->lights[i].position - hitou.p).size();
+            //float attenuation = 1/(1 + distance);
             l = unit_vector(world->lights[i].position - hitou.p); // direção da luz
             n = unit_vector(hitou.normal); // normal no ponto que hitou
             v = unit_vector(cam.origin - hitou.p); // view direction
@@ -44,8 +40,8 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
             float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
 
             if(cosine > 0.0) {
-                diffuse = diffuse + Kd * world->lights[i].color * cosine;
-                specular = specular + Ks*world->lights[i].color*pow(max(0.0f, vr),alpha);
+                diffuse = diffuse + hitou.material.Kd * world->lights[i].color * cosine/**attenuation*/;
+                specular = specular + hitou.material.Ks * world->lights[i].color*pow(max(0.0f, vr),alpha)/**attenuation*/;
            
             }
         }
@@ -105,11 +101,9 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam){
 
 
 int main(){
-    int W = 500; // tamanho horizontal da tela
-    int H = 500; // tamanho vertical da tela
-    int ns = 10; // precisão do antialiasing
-    camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H) , 2.0,0.7);//inicializacao qualquer por causa de erro de compilacao
- 
+    int W, H ,ns = 25; // precisão do antialiasing
+    camera cam;
+
     fstream cena;
     cena.open("cenaze.txt");//arquivo descricao
     ofstream out("ze.ppm");//arquivo resultado
