@@ -51,13 +51,15 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 	ambient = ambient + world->lights[i].color;
     }
     ambient = ambient*hitou.material.Ka/world->numLights;
-/*
+
 //tentativa de monte carlo aqui
     plane pla = world->planelight;
     vec3 vy = pla.p2 - pla.p0;
     vec3 vx = pla.p1 - pla.p0;
     int Y = (int)vy.size();
     int X = (int)vx.size();
+    vx.normalize();
+    vy.normalize();
     int soft=20;
     for(int i=0;i<soft;i++){
                 float uu = drand48()*Y;//valores entre 0 e Y
@@ -65,8 +67,8 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
                 vec3 ligpos = pla.p0 + uu*vy + vv*vx;//ponto no plano
                 hit_record h2;
                 if(world->hit(ray(hitou.p,ligpos - hitou.p), 0.001, FLT_MAX, h2)){//acertou=sombra
-                    diffuse = diffuse + vec3(0,0,0);
-                    specular = specular + vec3(0,0,0);
+                    diffuse += vec3(0,0,0);
+                    specular += vec3(0,0,0);
                 }else{
                     l = unit_vector(ligpos - hitou.p); // direção da luz
                     n = unit_vector(hitou.normal); // normal no ponto que hitou
@@ -75,15 +77,15 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
                     r = 2*dot(l,n)*n - l; // pega o raio refletido pela luz
                     float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
 
-                    if(cosine > 0.0) {
-                        diffuse = diffuse +  world->planelight.material.Kd * cosine;
-                        specular = specular +  world->planelight.material.Ks*pow(max(0.0f, vr),alpha);
+                    if(cosine > 0.0) {//AQUI
+                        //diffuse +=  world->planelight.material.Kd * cosine;
+                        //specular +=  world->planelight.material.Ks*pow(max(0.0f, vr),alpha);
                     }
                 }
         }
 
 	//ambient = ambient + world->planelight.material.Ka;
-    */
+    
     
     
     return  ambient + diffuse + specular;
@@ -102,7 +104,7 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam){
 
 
 int main(){
-    int W, H ,ns = 1; // precisão do antialiasing
+    int W, H ,ns = 20; // precisão do antialiasing
     camera cam;
 
     fstream cena;
@@ -134,9 +136,11 @@ int main(){
             cena >> cx >> cy >> cz >> radius >> materialname;
             objects.push_back(sphere(vec3(cx,cy,cz), radius, material_dictionary[materialname])); 
         }else if(action == "light"){
+           
             float r, g, b,px,py,pz;
             cena >> r >> g >> b >> px >> py >> pz;
             lights.push_back(phongLight(vec3(r,g,b), vec3(px,py,pz)));
+        
         }else if(action == "planelight"){
 
         }
@@ -160,7 +164,9 @@ int main(){
         phongLight aux  = lights[i];
         lightList[i]= phongLight(aux.color, aux.position);
     }
-    plane lightplane(vec3(0,2,0),vec3(1,2,1),vec3(2,2,2));
+   
+    //plano de luz aqui
+    plane lightplane(vec3(0,2,0),vec3(3,2,0),vec3(0,2,3));
     hitable_list *world = new hitable_list(list,QUANTIDADE,lightList,numLights,lightplane); // objeto que tem todas as imagens
 
 
