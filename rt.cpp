@@ -18,9 +18,7 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 
     vec3 n,l,r,v;
 
-    float alpha = hitou.material.alpha*128; // isso aqui é o alpha do material, ele deve ir de 0.0 a 1.0 preferencialmente
-    float Ka,Kd,Ks;
-    Ka=Kd=Ks=0.6;
+    float alpha = hitou.material.alpha; // isso aqui é o alpha do material, ele deve ir de 0.0 a 1.0 preferencialmente
     vec3 ambient = vec3(0.0,0.0,0.0);
     vec3 diffuse = vec3(0.0,0.0,0.0);
     vec3 specular = vec3(0.0,0.0,0.0);
@@ -28,13 +26,12 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
     for(int i = 0;i<world->numLights;i++) {
         hit_record h;
         if(world->hit(ray(hitou.p,world->lights[i].position - hitou.p), 0.001, FLT_MAX, h)) { // entra nesse if se houver interseção entre o ponto e a luz i.
-            diffuse = diffuse + vec3(0,0,0);
-            specular = specular + vec3(0,0,0);
-        } 
-        else {
+            diffuse += vec3(0,0,0);
+            specular += vec3(0,0,0);
+        } else {
             
-            //float distance = vec3(world->lights[i].position - hitou.p).size();
-            //float attenuation = 1/(1 + distance);
+            float distance = vec3(world->lights[i].position - hitou.p).size();
+            float attenuation = 1/(1 + distance);
             l = unit_vector(world->lights[i].position - hitou.p); // direção da luz
             n = unit_vector(hitou.normal); // normal no ponto que hitou
             v = unit_vector(cam.origin - hitou.p); // view direction
@@ -43,8 +40,8 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
             float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
 
             if(cosine > 0.0) {
-                diffuse = diffuse + hitou.material.Kd * world->lights[i].color * cosine/**attenuation*/;
-                specular = specular + hitou.material.Ks * world->lights[i].color*pow(max(0.0f, vr),alpha)/**attenuation*/;
+                diffuse = diffuse + hitou.material.Kd * world->lights[i].color * cosine*attenuation;
+                specular = specular + hitou.material.Ks * world->lights[i].color*pow(max(0.0f, vr),alpha)*attenuation;
            
             }
             
@@ -52,19 +49,21 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
         
 	ambient = ambient + world->lights[i].color;
     }
-
+    ambient = ambient/world->numLights;
+/*
+//tentativa de monte carlo aqui
     plane pla = world->planelight;
-    int Y = (int)(pla.p2 - pla.p0).size();
-    int X = (int)(pla.p1 - pla.p0).size();
     vec3 vy = pla.p2 - pla.p0;
     vec3 vx = pla.p1 - pla.p0;
-    int soft=10;
+    int Y = (int)vy.size();
+    int X = (int)vx.size();
+    int soft=20;
     for(int i=0;i<soft;i++){
-                float uu = drand48()*Y;
-                float vv = drand48()*X;
+                float uu = drand48()*Y;//valores entre 0 e Y
+                float vv = drand48()*X;//valores entre 0 e X
                 vec3 ligpos = pla.p0 + uu*vy + vv*vx;//ponto no plano
                 hit_record h2;
-                if(world->hit(ray(hitou.p,ligpos - hitou.p), 0.001, FLT_MAX, h2)){
+                if(world->hit(ray(hitou.p,ligpos - hitou.p), 0.001, FLT_MAX, h2)){//acertou=sombra
                     diffuse = diffuse + vec3(0,0,0);
                     specular = specular + vec3(0,0,0);
                 }else{
@@ -76,21 +75,17 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
                     float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
 
                     if(cosine > 0.0) {
-                        diffuse = diffuse + Kd * world->planelight.material.color * cosine;
-                        specular = specular + Ks* world->planelight.material.color*pow(max(0.0f, vr),alpha);
-           
+                        diffuse = diffuse +  world->planelight.material.Kd * cosine;
+                        specular = specular +  world->planelight.material.Ks*pow(max(0.0f, vr),alpha);
                     }
                 }
-                }
-            
+        }
+
+	//ambient = ambient + world->planelight.material.Ka;
+    */
     
     
-	ambient = ambient + world->planelight.material.color;
-    ambient = ambient/world->numLights;
-    ambient = ambient*Ka;
-    
-    
-    return  (vec3(0.0,0.0,0.0) + diffuse + specular);
+    return  ambient + diffuse + specular;
 
 }
 
@@ -106,12 +101,12 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam){
 
 
 int main(){
-    int W, H ,ns = 15; // precisão do antialiasing
+    int W, H ,ns = 1; // precisão do antialiasing
     camera cam;
 
     fstream cena;
-    cena.open("cenaze.txt");//arquivo descricao
-    ofstream out("ze.ppm");//arquivo resultado
+    cena.open("cenatiago.txt");//arquivo descricao
+    ofstream out("tiago.ppm");//arquivo resultado
 
     string action;
     map<string,phongMaterial> material_dictionary;
@@ -131,7 +126,7 @@ int main(){
             float r, g, b, kd, ks, ka, alpha;
             string name; 
             cena>> name >> r >> g >> b >> ka >> kd >> ks >> alpha;
-            material_dictionary[name] = phongMaterial(vec3(r,g,b),ka,kd,kd,alpha);
+            material_dictionary[name] = phongMaterial(vec3(r,g,b),ka,kd,ks,alpha);
         }else if(action == "sphere"){
             float cx, cy, cz, radius;
             string materialname;
