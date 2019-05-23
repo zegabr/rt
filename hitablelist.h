@@ -2,15 +2,15 @@
 #define HITABLELISTH
 
 #include "hitable.h"
-
+#include "plane.h"
 class hitable_list: public hitable{
     public:
         hitable_list(){}
-        hitable_list(hitable **l,int n, phongLight *li, int m) {list= l ;numObjetos=n;lights = li;numLights = m; }
+        hitable_list(hitable **l,int n, phongLight *li, int m, plane plu) {list= l ;numObjetos=n;lights = li;numLights = m; planelight= plu; }
         virtual bool hit(const ray& r,float tmin,float tmax,hit_record& rec)const;
         hitable **list;
 	    phongLight *lights;
-	
+        plane planelight;
         int numObjetos;
 	    int numLights;
 };

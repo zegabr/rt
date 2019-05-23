@@ -6,11 +6,11 @@
 #include<vector>
 #include<map>
 #include "sphere.h"
+#include "plane.h"
 #include "hitablelist.h"
 #include "float.h"
 #include "camera.h"
 #include "material.h"
-#include "plane.h"
 using namespace std;
 
 vec3 PRETO = vec3(0.0,0.0,0.0), BRANCO = vec3(1.0,1.0,1.0);
@@ -51,7 +51,40 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
         }
 	ambient = ambient + world->lights[i].color;
     }
+
+    plane pla = world->planelight;
+    int Y = (int)(pla.p2 - pla.p0).size();
+    int X = (int)(pla.p1 - pla.p0).size();
+    vec3 vy = pla.p2 - pla.p0;
+    vec3 vx = pla.p1 - pla.p0;
+    int soft=10;
+    for(int i=0;i<soft;i++){
+                float uu = drand48()*Y;
+                float vv = drand48()*X;
+                vec3 ligpos = pla.p0 + uu*vy + vv*vx;//ponto no plano
+                hit_record h2;
+                if(world->hit(ray(hitou.p,ligpos - hitou.p), 0.001, FLT_MAX, h2)){
+                    diffuse = diffuse + vec3(0,0,0);
+                    specular = specular + vec3(0,0,0);
+                }else{
+                    l = unit_vector(ligpos - hitou.p); // direção da luz
+                    n = unit_vector(hitou.normal); // normal no ponto que hitou
+                    v = unit_vector(cam.origin - hitou.p); // view direction
+
+                    r = 2*dot(l,n)*n - l; // pega o raio refletido pela luz
+                    float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
+
+                    if(cosine > 0.0) {
+                        diffuse = diffuse + Kd * world->planelight.material.color * cosine;
+                        specular = specular + Ks*world->planelight.material.color*pow(max(0.0f, vr),alpha);
+           
+                    }
+                }
+                }
+            
     
+    
+	ambient = ambient + world->planelight.material.color;
     ambient = ambient/world->numLights;
     ambient = ambient*Ka;
     
@@ -74,12 +107,12 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam){
 int main(){
     int W = 500; // tamanho horizontal da tela
     int H = 500; // tamanho vertical da tela
-    int ns = 100; // precisão do antialiasing
+    int ns = 10; // precisão do antialiasing
     camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H) , 2.0,0.7);//inicializacao qualquer por causa de erro de compilacao
  
     fstream cena;
-    cena.open("cenatiago.txt");//arquivo descricao
-    ofstream out("tiago2.ppm");//arquivo resultado
+    cena.open("cenaze.txt");//arquivo descricao
+    ofstream out("ze.ppm");//arquivo resultado
 
     string action;
     map<string,phongMaterial> material_dictionary;
@@ -109,6 +142,8 @@ int main(){
             float r, g, b,px,py,pz;
             cena >> r >> g >> b >> px >> py >> pz;
             lights.push_back(phongLight(vec3(r,g,b), vec3(px,py,pz)));
+        }else if(action == "planelight"){
+
         }
     }
 
@@ -130,8 +165,8 @@ int main(){
         phongLight aux  = lights[i];
         lightList[i]= phongLight(aux.color, aux.position);
     }
-
-    hitable_list *world = new hitable_list(list,QUANTIDADE,lightList,numLights); // objeto que tem todas as imagens
+    plane lightplane(vec3(0,2,0),vec3(1,2,1),vec3(2,2,2));
+    hitable_list *world = new hitable_list(list,QUANTIDADE,lightList,numLights,lightplane); // objeto que tem todas as imagens
 
 
    
