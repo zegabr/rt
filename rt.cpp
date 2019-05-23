@@ -77,8 +77,8 @@ int main(){
     camera cam(vec3(-3.0,3.0,-3.0), vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90, float(W)/float(H) , 2.0,0.7);//inicializacao qualquer por causa de erro de compilacao
  
     fstream cena;
-    cena.open("cenaze.txt");//arquivo descricao
-    ofstream out("ze.ppm");//arquivo resultado
+    cena.open("cenatiago.txt");//arquivo descricao
+    ofstream out("tiago2.ppm");//arquivo resultado
 
     string action;
     map<string,phongMaterial> material_dictionary;
