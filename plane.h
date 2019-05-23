@@ -14,7 +14,7 @@ class plane: public hitable {
         p2(c), 
         material(m),
         normal(  unit_vector((cross(p0 - p1, p0 - p2)))),
-        area(cross(p0 - p1, p0 - p2)).size()
+        area(cross(p0 - p1, p0 - p2).size())
         {};
 
     virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
@@ -22,9 +22,7 @@ class plane: public hitable {
     phongMaterial material;
     vec3 normal;
     float area;
-};
-
-bool plane::hit(const ray& r, hit_record& rec) const{
+bool hit(const ray& r, hit_record& rec) const{
     // Möller–Trumbore intersection algorithm
 
 	vec3 e1, e2;  //Edge1, Edge2
@@ -36,7 +34,7 @@ bool plane::hit(const ray& r, hit_record& rec) const{
 	e1 = p1 - p0;
 	e2 = p2 - p0;
 	// Begin calculating determinant - also used to calculate u parameter
-	P = cross(r.direction, e2);
+	P = cross(r.direction(), e2);
 	// if determinant is near zero, ray lies in plane of triangle
 	det = dot(e1, P);
 	// NOT CULLING
@@ -44,7 +42,7 @@ bool plane::hit(const ray& r, hit_record& rec) const{
 		inv_det = 1.f / det;
 
 	// calculate distance from p0 to ray origin
-	T = r.origin - p0;
+	T = r.origin() - p0;
 	Q = cross(T, e1);
 
 	// Calculate u parameter and test bound
@@ -57,13 +55,15 @@ bool plane::hit(const ray& r, hit_record& rec) const{
 	t = dot(e2, Q) * inv_det;
 
 	if(t > 0.00001) { //ray intersection
-	rec->t = t;
-	rec->normal = unit_vector(cross(e1, e2));
-	rec->material = material;
+	rec.t = t;
+	rec.normal = unit_vector(cross(e1, e2));
+	rec.material = material;
 	return true;
 	}
 
 	// No hit, no win
 return false;
 }
+};
+
 #endif
