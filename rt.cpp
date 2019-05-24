@@ -113,8 +113,8 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam, int soft)
 int main(){
 	ios::sync_with_stdio(0); cin.tie(0);
 
-	int W, H ,ns = 100; // precisão do antialiasing
-	int soft=20;//QUANTIDADE DE ITERACOES NO SOFT SHADOWS
+	int W, H ,ns = 200; // precisão do antialiasing 
+	int soft=30;//QUANTIDADE DE ITERACOES NO SOFT SHADOWS
 	//=====soft eh agr passado como parametro em cor e phong, pra ficar mais facil inicializar aqui
 	camera cam;
 
