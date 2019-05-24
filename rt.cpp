@@ -10,17 +10,17 @@
 #include "float.h"
 #include "camera.h"
 using namespace std;
-//#define endl '\n'
+#define endl '\n'
 
 
 vec3 PRETO = vec3(0.0,0.0,0.0), BRANCO = vec3(1.0,1.0,1.0);
 
-vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world){
+vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world, int soft){
 
-    int soft=10;//QUANTIDADE DE ITERACOES NO SOFT SHADOWS
+    
     vec3 n,l,r,v;
     float attenuation,distance;
-    float alpha = hitou.material.alpha*128; // isso aqui é o alpha do material, ele deve ir de 0.0 a 1.0 preferencialmente
+    float alpha = hitou.material.alpha*200; // isso aqui é o alpha do material, ele deve ir de 0.0 a 1.0 preferencialmente
 
     vec3 ambient = vec3(0.0,0.0,0.0);
     vec3 diffuse = vec3(0.0,0.0,0.0);
@@ -53,7 +53,7 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 	// ambient = ambient + world->lights[i].color;
     // }
 
-//tentativa de monte carlo aqui
+// monte carlo aqui
     vec3 vy = world->planelight.p2 - world->planelight.p0;//vetor representativo de um dos lados
     vec3 vx = world->planelight.p1 - world->planelight.p0;//vetor representativo do outro lado
     int Y = (int)vy.size();//aproximacao inteira do tamanho dos lados
@@ -67,7 +67,7 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
                 //cout << uu << ' ' << vv << endl;//soh pra testar se uu e vv tao entre zero e o tamanho dos lados do planoluz
                
                 vec3 ligpos = world->planelight.p0 + uu*vy + vv*vx;//ponto no plano
-                attenuation = 1/((ligpos - hitou.p).size());
+                //attenuation = 1/((ligpos - hitou.p).size());
                
                 hit_record h2;
                 if(world->hit(ray(hitou.p,ligpos - hitou.p), 0.001, FLT_MAX, h2)){//acertoualgo =sombra
@@ -88,25 +88,18 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
                 }
     }
 
-    diffuseaux/=soft;//media difusa do soft shadow
-    diffuse+=diffuseaux;
-
-    specularaux/=soft;//media specular do soft shadow
-    specular+=specularaux;
-    
-	ambient = ambient + world->planelight.material.Ka;
-    ambient = ambient*hitou.material.Ka/(soft);
-    
-    
+    diffuse += diffuseaux/soft;//media difusa
+    specular += specularaux/soft;//media especular
+	ambient += world->planelight.material.Ka *hitou.material.Ka;
     
     return  ambient + diffuse + specular;
 
 }
 
-vec3 color(const ray& r, const hitable_list *world, const camera &cam){
+vec3 color(const ray& r, const hitable_list *world, const camera &cam, int soft){
     hit_record rec;
     if(world->hit(r,0.00000001,FLT_MAX,rec)){ // se acertar algum objeto da imagem, entra nesse if
-        return phong(rec,cam,world);
+        return phong(rec,cam,world, soft);
     }
     else{
         return vec3(0.0,0.0,0.0);
@@ -117,7 +110,9 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam){
 int main(){
     ios::sync_with_stdio(0); cin.tie(0);
 
-    int W, H ,ns = 10; // precisão do antialiasing
+    int W, H ,ns = 100; // precisão do antialiasing
+    int soft=20;//QUANTIDADE DE ITERACOES NO SOFT SHADOWS
+    //=====soft eh agr passado como parametro em cor e phong, pra ficar mais facil inicializar aqui
     camera cam;
 
     fstream cena;
@@ -181,8 +176,8 @@ int main(){
         lightList[i]= phongLight(aux.color, aux.position);
     }
    
-    //PLANO LUMINOSO AQUI
-    plane lightplane(vec3(0,3,0),vec3(10,3,0),vec3(0,3,5));
+    //=====================PLANO LUMINOSO AQUI==========================
+    plane lightplane(vec3(0,3,0),vec3(5,3,0),vec3(0,2,5));
     hitable_list *world = new hitable_list(list,QUANTIDADE,lightList,numLights,lightplane); // objeto que tem todas as imagens
 
 
@@ -195,7 +190,7 @@ int main(){
                 float u = float(i + drand48()/*random_digit()*/) / float(W);
                 float v = float(j + drand48()/*random_digit()*/) / float(H);
                 ray r = cam.get_ray(u,v);
-                col += color(r,world,cam);
+                col += color(r,world,cam,soft);
             }
             col /= float(ns);
             col = vec3(col.x,col.y,col.z); // serve pra ajustar a gamma de cores para visualizadores de imagem
