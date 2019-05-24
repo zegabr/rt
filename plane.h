@@ -12,7 +12,7 @@ class plane: public hitable {
         p0(a),
         p1(b),
         p2(c), 
-        material(phongMaterial(vec3(1,1,1), 0.5 ,0.5,0.5,10)),
+        material(phongMaterial(vec3(1,1,1), 1 ,2,1,2)),
         normal(  unit_vector((cross(p0 - p1, p0 - p2)))),
         area(cross(p0 - p1, p0 - p2).size())
         {};

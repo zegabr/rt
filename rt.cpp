@@ -1,4 +1,3 @@
-//#include<bits/stdc++.h> //inclui tudo mas compila mais lento
 #include<iostream>
 #include<fstream>
 #include<cmath>
@@ -11,64 +10,69 @@
 #include "float.h"
 #include "camera.h"
 using namespace std;
+//#define endl '\n'
+
 
 vec3 PRETO = vec3(0.0,0.0,0.0), BRANCO = vec3(1.0,1.0,1.0);
 
 vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world){
 
+    int soft=10;//QUANTIDADE DE ITERACOES NO SOFT SHADOWS
     vec3 n,l,r,v;
-
+    float attenuation,distance;
     float alpha = hitou.material.alpha*128; // isso aqui é o alpha do material, ele deve ir de 0.0 a 1.0 preferencialmente
 
     vec3 ambient = vec3(0.0,0.0,0.0);
     vec3 diffuse = vec3(0.0,0.0,0.0);
     vec3 specular = vec3(0.0,0.0,0.0);
-
-    for(int i = 0;i<world->numLights;i++) {
-        hit_record h;
-        if(world->hit(ray(hitou.p,world->lights[i].position - hitou.p), 0.001, FLT_MAX, h)) { // entra nesse if se houver interseção entre o ponto e a luz i.
-            diffuse += vec3(0,0,0);
-            specular += vec3(0,0,0);
-        } else {
+   
+    // for(int i = 0;i<world->numLights;i++) {
+    //     hit_record h;
+    //     if(world->hit(ray(hitou.p,world->lights[i].position - hitou.p), 0.001, FLT_MAX, h)) { // entra nesse if se houver interseção entre o ponto e a luz i.
+    //         diffuse += vec3(0,0,0);
+    //         specular += vec3(0,0,0);
+    //     } else {
             
-            //float distance = vec3(world->lights[i].position - hitou.p).size();
-            //float attenuation = 1/(1 + distance);
-            l = unit_vector(world->lights[i].position - hitou.p); // direção da luz
-            n = unit_vector(hitou.normal); // normal no ponto que hitou
-            v = unit_vector(cam.origin - hitou.p); // view direction
+    //         distance = vec3(world->lights[i].position - hitou.p).size();
+    //         attenuation = 1/(distance);
+    //         l = unit_vector(world->lights[i].position - hitou.p); // direção da luz
+    //         n = unit_vector(hitou.normal); // normal no ponto que hitou
+    //         v = unit_vector(cam.origin - hitou.p); // view direction
 
-            r = 2*dot(l,n)*n - l; // pega o raio refletido pela luz
-            float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
+    //         r = 2*dot(l,n)*n - l; // pega o raio refletido pela luz
+    //         float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
 
-            if(cosine > 0.0) {
-                diffuse = diffuse + hitou.material.Kd * world->lights[i].color * cosine/**attenuation*/;
-                specular = specular + hitou.material.Ks * world->lights[i].color*pow(max(0.0f, vr),alpha)/**attenuation*/;
+    //         if(cosine > 0.0) {
+    //             diffuse = diffuse + hitou.material.Kd * world->lights[i].color * cosine * attenuation;
+    //             specular = specular + hitou.material.Ks * world->lights[i].color*pow(max(0.0f, vr),alpha)/**attenuation*/;
            
-            }
+    //         }
             
-        }
+    //     }
         
-	ambient = ambient + world->lights[i].color;
-    }
-    ambient = ambient*hitou.material.Ka/world->numLights;
+	// ambient = ambient + world->lights[i].color;
+    // }
 
 //tentativa de monte carlo aqui
-    plane pla = world->planelight;
-    vec3 vy = pla.p2 - pla.p0;
-    vec3 vx = pla.p1 - pla.p0;
-    int Y = (int)vy.size();
+    vec3 vy = world->planelight.p2 - world->planelight.p0;//vetor representativo de um dos lados
+    vec3 vx = world->planelight.p1 - world->planelight.p0;//vetor representativo do outro lado
+    int Y = (int)vy.size();//aproximacao inteira do tamanho dos lados
     int X = (int)vx.size();
-    vx.normalize();
-    vy.normalize();
-    int soft=20;
+    //cout<<X<<' '<<Y<<endl;
+    vec3 diffuseaux = vec3(0,0,0);
+    vec3 specularaux = vec3(0,0,0);
     for(int i=0;i<soft;i++){
-                float uu = drand48()*Y;//valores entre 0 e Y
-                float vv = drand48()*X;//valores entre 0 e X
-                vec3 ligpos = pla.p0 + uu*vy + vv*vx;//ponto no plano
+                float uu = drand48();//valores entre 0 e 1
+                float vv = drand48();//valores entre 0 e 1
+                //cout << uu << ' ' << vv << endl;//soh pra testar se uu e vv tao entre zero e o tamanho dos lados do planoluz
+               
+                vec3 ligpos = world->planelight.p0 + uu*vy + vv*vx;//ponto no plano
+                attenuation = 1/((ligpos - hitou.p).size());
+               
                 hit_record h2;
-                if(world->hit(ray(hitou.p,ligpos - hitou.p), 0.001, FLT_MAX, h2)){//acertou=sombra
-                    diffuse += vec3(0,0,0);
-                    specular += vec3(0,0,0);
+                if(world->hit(ray(hitou.p,ligpos - hitou.p), 0.001, FLT_MAX, h2)){//acertoualgo =sombra
+                    diffuseaux += vec3(0,0,0);
+                    specularaux += vec3(0,0,0);
                 }else{
                     l = unit_vector(ligpos - hitou.p); // direção da luz
                     n = unit_vector(hitou.normal); // normal no ponto que hitou
@@ -78,13 +82,20 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
                     float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
 
                     if(cosine > 0.0) {//AQUI
-                        //diffuse +=  world->planelight.material.Kd * cosine;
-                        //specular +=  world->planelight.material.Ks*pow(max(0.0f, vr),alpha);
+                        diffuseaux += hitou.material.Kd * world->planelight.material.color * cosine /**attenuation*/;
+                        specularaux += hitou.material.Ks * world->planelight.material.color*pow(max(0.0f, vr),alpha) /**attenuation*/;
                     }
                 }
-        }
+    }
 
-	//ambient = ambient + world->planelight.material.Ka;
+    diffuseaux/=soft;//media difusa do soft shadow
+    diffuse+=diffuseaux;
+
+    specularaux/=soft;//media specular do soft shadow
+    specular+=specularaux;
+    
+	ambient = ambient + world->planelight.material.Ka;
+    ambient = ambient*hitou.material.Ka/(soft);
     
     
     
@@ -104,17 +115,22 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam){
 
 
 int main(){
-    int W, H ,ns = 20; // precisão do antialiasing
+    ios::sync_with_stdio(0); cin.tie(0);
+
+    int W, H ,ns = 10; // precisão do antialiasing
     camera cam;
 
     fstream cena;
-    cena.open("cenaze.txt");//arquivo descricao
-    ofstream out("ze.ppm");//arquivo resultado
+    string input = "cenaze.txt";
+    string output = "ze.ppm";
+    cena.open(input);//arquivo descricao
+    ofstream out(output);//arquivo resultado
 
     string action;
     map<string,phongMaterial> material_dictionary;
     vector<sphere> objects;
     vector<phongLight> lights;
+    
     while(cena >> action){
         if(action == "res"){
             cena >> H >> W;
@@ -165,8 +181,8 @@ int main(){
         lightList[i]= phongLight(aux.color, aux.position);
     }
    
-    //plano de luz aqui
-    plane lightplane(vec3(0,2,0),vec3(3,2,0),vec3(0,2,3));
+    //PLANO LUMINOSO AQUI
+    plane lightplane(vec3(0,3,0),vec3(10,3,0),vec3(0,3,5));
     hitable_list *world = new hitable_list(list,QUANTIDADE,lightList,numLights,lightplane); // objeto que tem todas as imagens
 
 
@@ -189,5 +205,5 @@ int main(){
             out<<ir<<" "<<ig<<" "<<ib<<"\n";
         }
     }
-
+    cout << "scene: " << input << endl << "output: " << output << endl;
 } 
