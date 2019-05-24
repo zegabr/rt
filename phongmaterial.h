@@ -5,16 +5,17 @@
 class phongMaterial {
     public:
         phongMaterial() {}
-        phongMaterial(vec3 c, float a, float d, float s, float alp) : color(c), alpha(alp) {
-            Ka = c*a;
+        phongMaterial(vec3 c, float e, float d, float s, float alp, bool r) : color(c), alpha(alp), reflective(r) {
+            Ke = c*e;
             Kd = c*d;
             Ks = c*s;
         }
 
         vec3 color;
-        vec3 Ka;
+        vec3 Ke;
         vec3 Ks;
         vec3 Kd;
+        bool reflective;
         float alpha;
 
 };

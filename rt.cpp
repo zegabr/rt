@@ -22,7 +22,7 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 	float attenuation,distance;
 	float alpha = hitou.material.alpha*128; // isso aqui é o alpha do material, ele deve ir de 0.0 a 1.0 preferencialmente
 
-	vec3 ambient = vec3(0.0,0.0,0.0);
+	vec3 emissive = vec3(0.0,0.0,0.0);
 	vec3 diffuse = vec3(0.0,0.0,0.0);
 	vec3 specular = vec3(0.0,0.0,0.0);
 	if(soft==0){//usa luzes pontuais inicializadas descritas na cena
@@ -34,7 +34,7 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 			} else {
 
 				distance = vec3(world->lights[i].position - hitou.p).size();
-				attenuation = 1/(distance);
+				//attenuation = 1/(distance);
 				l = unit_vector(world->lights[i].position - hitou.p); // direção da luz
 				n = unit_vector(hitou.normal); // normal no ponto que hitou
 				v = unit_vector(cam.origin - hitou.p); // view direction
@@ -43,22 +43,19 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 				float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
 
 				if(cosine > 0.0) {
-					diffuse = diffuse + hitou.material.Kd * world->lights[i].color * cosine * attenuation;
-					specular = specular + hitou.material.Ks * world->lights[i].color*pow(max(0.0f, vr),alpha)*attenuation;
+					diffuse = diffuse + hitou.material.Kd * world->lights[i].color * cosine /** attenuation*/;
+					specular = specular + hitou.material.Ks * world->lights[i].color*pow(max(0.0f, vr),alpha)/**attenuation*/;
 
 				}
 
 			}
 
-			ambient += hitou.material.Ka * world->lights[i].color/world->numLights;
+			emissive += hitou.material.Ke * world->lights[i].color/world->numLights;
 		}
 	}else{//usa plano luminoso
 		// monte carlo aqui
 		vec3 vy = world->planelight.p2 - world->planelight.p0;//vetor representativo de um dos lados
 		vec3 vx = world->planelight.p1 - world->planelight.p0;//vetor representativo do outro lado
-		int Y = (int)vy.size();//aproximacao inteira do tamanho dos lados
-		int X = (int)vx.size();
-		//cout<<X<<' '<<Y<<endl;
 		vec3 diffuseaux = vec3(0,0,0);
 		vec3 specularaux = vec3(0,0,0);
 		for(int i=0;i<soft;i++){
@@ -90,33 +87,47 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 
 		diffuse += diffuseaux/soft;//media difusa
 		specular += specularaux/soft;//media especular
-		ambient += world->planelight.material.Ka *hitou.material.Ka/soft;
+		emissive += world->planelight.material.Ke *hitou.material.Ke/soft;
 
 	}
-
-
-	return  ambient + diffuse + specular;
+	
+	return  emissive + diffuse + specular;
 
 }
 
-vec3 color(const ray& r, const hitable_list *world, const camera &cam, int soft){
+bool scatter(const ray& r_in, const hit_record& rec, ray& scattered) {
+	vec3 reflected = reflect(unit_vector(r_in.direction()),rec.normal);
+	const float ERR = 1e-4;
+	scattered = ray(rec.p +rec.normal*ERR, reflected);
+	return(dot(scattered.direction(),rec.normal)> 0);
+}
+
+vec3 color(const ray& r, const hitable_list *world, const camera &cam, int soft, const int depth){
 	hit_record rec;
 	if(world->hit(r,0.00000001,FLT_MAX,rec)){ // se acertar algum objeto da imagem, entra nesse if
-		return phong(rec,cam,world, soft);
+		vec3 albedo;
+		ray scattered;
+		if(depth < 20) { // máx 20 interações 
+			if(scatter(r,rec,scattered) && rec.material.reflective) { // entra aqui se o material for refletível
+				vec3 attenuation = color(scattered,world,cam,soft,depth+1); // pega a cor do próx material
+				return attenuation*rec.material.Ks + phong(rec,cam,world,soft); // retorna a reflexão + a cor do mat
+			} 
+		} 
+		return phong(rec,cam,world,soft);
+	} else {
+		return vec3(0,0,0);
 	}
-	else{
-		return vec3(0.0,0.0,0.0);
-	}
+	
 }
 
 
 int main(){
 	ios::sync_with_stdio(0); cin.tie(0);
-
-	int W, H ,ns = 200; // precisão do antialiasing 
-	int soft=30;//QUANTIDADE DE ITERACOES NO SOFT SHADOWS
+	int W, H ,ns = 70; // precisão do antialiasing 
+	int soft = 0;//QUANTIDADE DE ITERACOES NO SOFT SHADOWS
 	//=====soft eh agr passado como parametro em cor e phong, pra ficar mais facil inicializar aqui
 	camera cam;
+	plane lightplane;
 
 	fstream cena;
 	string input = "cenaze.txt";
@@ -140,10 +151,11 @@ int main(){
 			dist = direction.size();
 			cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, float(W)/float(H), aperture ,dist);
 		}else if(action == "material"){
-			float r, g, b, kd, ks, ka, alpha;
-			string name; 
-			cena>> name >> r >> g >> b >> ka >> kd >> ks >> alpha;
-			material_dictionary[name] = phongMaterial(vec3(r,g,b),ka,kd,ks,alpha);
+			float r, g, b, kd, ks, ke, alpha;
+			string name;
+			bool reflect;
+			cena>> name >> r >> g >> b >> ke >> kd >> ks >> alpha >> reflect;
+			material_dictionary[name] = phongMaterial(vec3(r,g,b),ke,kd,ks,alpha,reflect);
 		}else if(action == "sphere"){
 			float cx, cy, cz, radius;
 			string materialname;
@@ -156,6 +168,9 @@ int main(){
 			lights.push_back(phongLight(vec3(r,g,b), vec3(px,py,pz)));
 
 		}else if(action == "planelight"){
+			float ax,ay,az,bx,by,bz,cx,cy,cz;
+			cena >> ax >> ay >> az >> bx >> by >> bz >> cx >> cy >> cz >> soft;
+			lightplane = plane(vec3(ax,ay,az),vec3(bx,by,bz),vec3(cx,cy,cz));
 
 		}
 	}
@@ -180,7 +195,7 @@ int main(){
 	}
 
 	//=====================PLANO LUMINOSO AQUI==========================
-	plane lightplane(vec3(0,3,0),vec3(5,3,0),vec3(0,2,5));
+	
 	hitable_list *world = new hitable_list(list,QUANTIDADE,lightList,numLights,lightplane); // objeto que tem todas as imagens
 
 
@@ -190,10 +205,10 @@ int main(){
 		for(int i = 0; i < W; i++){ // e da esquerda para a direita
 			vec3 col(0,0,0); 
 			for(int s = 0;s < ns;s++) { // for do anti-aliasing: recomendo ler sobre para entender
-				float u = float(i + drand48()/*random_digit()*/) / float(W);
-				float v = float(j + drand48()/*random_digit()*/) / float(H);
+				float u = float(i + drand48()) / float(W);
+				float v = float(j + drand48()) / float(H);
 				ray r = cam.get_ray(u,v);
-				col += color(r,world,cam,soft);
+				col += color(r,world,cam,soft, 0);
 			}
 			col /= float(ns);
 			col = vec3(col.x,col.y,col.z); // serve pra ajustar a gamma de cores para visualizadores de imagem
