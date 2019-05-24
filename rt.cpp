@@ -90,7 +90,7 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 		emissive += world->planelight.material.Ke *hitou.material.Ke/soft;
 
 	}
-	
+
 	return  emissive + diffuse + specular;
 
 }
@@ -117,7 +117,7 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam, int soft,
 	} else {
 		return vec3(0,0,0);
 	}
-	
+
 }
 
 
@@ -130,8 +130,8 @@ int main(){
 	plane lightplane;
 
 	fstream cena;
-	string input = "cenaze.txt";
-	string output = "zesoft.ppm";
+	string input = "cenatiagosoft.txt";
+	string output = "cenatiago.ppm";
 	cena.open(input);//arquivo descricao
 	ofstream out(output);//arquivo resultado
 
@@ -195,7 +195,7 @@ int main(){
 	}
 
 	//=====================PLANO LUMINOSO AQUI==========================
-	
+
 	hitable_list *world = new hitable_list(list,QUANTIDADE,lightList,numLights,lightplane); // objeto que tem todas as imagens
 
 
