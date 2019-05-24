@@ -1,3 +1,4 @@
+outputfile tiagoilimunado.ppm
 res 500 500
 
 camera 3 2 3  0 1 0  0 1 0  90  0.2

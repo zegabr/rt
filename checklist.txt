@@ -1,7 +1,7 @@
-[]sombra 1pt
-[]reflexoes perfeitas 1pt
+[x]sombra 1pt
+[x]reflexoes perfeitas 1pt
 []refracoes perfeitas 2pts
 []color bleeding 2pts
-[]depth of field 1pt
-[]luz em area 1pt
+[x]depth of field 1pt
+[x]luz em area 1pt
 []malhas triangulares 2pts

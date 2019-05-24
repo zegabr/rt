@@ -10,8 +10,6 @@
 #include "float.h"
 #include "camera.h"
 using namespace std;
-#define endl '\n'
-
 
 vec3 PRETO = vec3(0.0,0.0,0.0), BRANCO = vec3(1.0,1.0,1.0);
 
@@ -25,7 +23,7 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 	vec3 emissive = vec3(0.0,0.0,0.0);
 	vec3 diffuse = vec3(0.0,0.0,0.0);
 	vec3 specular = vec3(0.0,0.0,0.0);
-	if(soft==0){//usa luzes pontuais inicializadas descritas na cena
+	if(soft==0){//usa luzes pontuais inicializadas descritas na cin
 		for(int i = 0;i<world->numLights;i++) {
 			hit_record h;
 			if(world->hit(ray(hitou.p,world->lights[i].position - hitou.p), 0.001, FLT_MAX, h)) { // entra nesse if se houver interseção entre o ponto e a luz i.
@@ -43,8 +41,8 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 				float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
 
 				if(cosine > 0.0) {
-					diffuse = diffuse + hitou.material.Kd * world->lights[i].color * cosine /** attenuation*/;
-					specular = specular + hitou.material.Ks * world->lights[i].color*pow(max(0.0f, vr),alpha)/**attenuation*/;
+					diffuse = diffuse + hitou.material.Kd * world->lights[i].color * cosine;
+					specular = specular + hitou.material.Ks * world->lights[i].color*pow(max(0.0f, vr),alpha);
 
 				}
 
@@ -61,10 +59,8 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 		for(int i=0;i<soft;i++){
 			float uu = drand48();//valores entre 0 e 1
 			float vv = drand48();//valores entre 0 e 1
-			//cout << uu << ' ' << vv << endl;//soh pra testar se uu e vv tao entre zero e o tamanho dos lados do planoluz
 
 			vec3 ligpos = world->planelight.p0 + uu*vy + vv*vx;//ponto no plano
-			//attenuation = 1/((ligpos - hitou.p).size());
 
 			hit_record h2;
 			if(world->hit(ray(hitou.p,ligpos - hitou.p), 0.001, FLT_MAX, h2)){//acertoualgo =sombra
@@ -78,9 +74,9 @@ vec3 phong(const hit_record &hitou, const camera &cam, const hitable_list *world
 				r = 2*dot(l,n)*n - l; // pega o raio refletido pela luz
 				float vr = dot(v,r), cosine =  max(dot(n,l), 0.0f); // pega o cosseno entre n e l
 
-				if(cosine > 0.0) {//AQUI
-					diffuseaux += hitou.material.Kd * world->planelight.material.color * cosine /**attenuation*/;
-					specularaux += hitou.material.Ks * world->planelight.material.color*pow(max(0.0f, vr),alpha) /**attenuation*/;
+				if(cosine > 0.0) {
+					diffuseaux += hitou.material.Kd * world->planelight.material.color * cosine;
+					specularaux += hitou.material.Ks * world->planelight.material.color*pow(max(0.0f, vr),alpha);
 				}
 			}
 		}
@@ -128,24 +124,23 @@ int main(){
 	//=====soft eh agr passado como parametro em cor e phong, pra ficar mais facil inicializar aqui
 	camera cam;
 	plane lightplane;
+	string output;
 
-	fstream cena;
-	string input = "cenaze.txt";
-	string output = "ze.ppm";
-	cena.open(input);//arquivo descricao
-	ofstream out(output);//arquivo resultado
 
+	
 	string action;
 	map<string,phongMaterial> material_dictionary;
 	vector<sphere> objects;
 	vector<phongLight> lights;
 
-	while(cena >> action){
-		if(action == "res"){
-			cena >> H >> W;
+	while(cin >> action){
+		if(action == "outputfile"){
+			cin >> output;//nome do arquivo de saida
+		}else if(action == "res"){
+			cin >> H >> W;
 		}else if(action == "camera"){
 			float px,py,pz,tx,ty,tz,ux,uy,uz,fov,aperture,dist;
-			cena >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov >>aperture/* >> f*/;//ver esse f, provavel ser o depth of field
+			cin >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov >>aperture/* >> f*/;//ver esse f, provavel ser o depth of field
 			// camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
 			vec3 direction(tx-px,ty-py,tz-pz);
 			dist = direction.size();
@@ -154,22 +149,22 @@ int main(){
 			float r, g, b, kd, ks, ke, alpha;
 			string name;
 			bool reflect;
-			cena>> name >> r >> g >> b >> ke >> kd >> ks >> alpha >> reflect;
+			cin>> name >> r >> g >> b >> ke >> kd >> ks >> alpha >> reflect;
 			material_dictionary[name] = phongMaterial(vec3(r,g,b),ke,kd,ks,alpha,reflect);
 		}else if(action == "sphere"){
 			float cx, cy, cz, radius;
 			string materialname;
-			cena >> cx >> cy >> cz >> radius >> materialname;
+			cin >> cx >> cy >> cz >> radius >> materialname;
 			objects.push_back(sphere(vec3(cx,cy,cz), radius, material_dictionary[materialname])); 
 		}else if(action == "light"){
 
 			float r, g, b,px,py,pz;
-			cena >> r >> g >> b >> px >> py >> pz;
+			cin >> r >> g >> b >> px >> py >> pz;
 			lights.push_back(phongLight(vec3(r,g,b), vec3(px,py,pz)));
 
 		}else if(action == "planelight"){
 			float ax,ay,az,bx,by,bz,cx,cy,cz;
-			cena >> ax >> ay >> az >> bx >> by >> bz >> cx >> cy >> cz >> soft;
+			cin >> ax >> ay >> az >> bx >> by >> bz >> cx >> cy >> cz >> soft;
 			lightplane = plane(vec3(ax,ay,az),vec3(bx,by,bz),vec3(cx,cy,cz));
 
 		}
@@ -194,12 +189,10 @@ int main(){
 		lightList[i]= phongLight(aux.color, aux.position);
 	}
 
-	//=====================PLANO LUMINOSO AQUI==========================
-
 	hitable_list *world = new hitable_list(list,QUANTIDADE,lightList,numLights,lightplane); // objeto que tem todas as imagens
-
-
-
+	
+	
+	ofstream out(output);//arquivo resultado
 	out<<"P3"<<'\n'<<W<<'\n'<<H<<'\n'<<"255"<<'\n'; 
 	for(int j = H-1; j >= 0; j--){ // começa a preencher a imagem de cima para baixo
 		for(int i = 0; i < W; i++){ // e da esquerda para a direita
@@ -218,5 +211,5 @@ int main(){
 			out<<ir<<" "<<ig<<" "<<ib<<"\n";
 		}
 	}
-	cout << "scene: " << input << endl << "output: " << output << endl;
+	cout << "output: " << output << endl;
 } 
