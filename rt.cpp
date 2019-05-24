@@ -130,8 +130,8 @@ int main(){
 	plane lightplane;
 
 	fstream cena;
-	string input = "cenatiagosoft.txt";
-	string output = "cenatiago.ppm";
+	string input = "cenaze.txt";
+	string output = "ze.ppm";
 	cena.open(input);//arquivo descricao
 	ofstream out(output);//arquivo resultado
 
