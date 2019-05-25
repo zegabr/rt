@@ -103,7 +103,7 @@ vec3 color(const ray& r, const hitable_list *world, const camera &cam, int soft,
 	if(world->hit(r,0.00000001,FLT_MAX,rec)){ // se acertar algum objeto da imagem, entra nesse if
 		vec3 albedo;
 		ray scattered;
-		if(depth < 30) { // máx 20 interações 
+		if(depth < 20) { // máx 20 interações 
 			if(scatter(r,rec,scattered) && rec.material.reflective) { // entra aqui se o material for refletível
 				vec3 attenuation = color(scattered,world,cam,soft,depth+1); // pega a cor do próx material
 				return attenuation*rec.material.Ks + phong(rec,cam,world,soft); // retorna a reflexão + a cor do mat
@@ -140,10 +140,8 @@ int main(){
 			cin >> H >> W;
 		}else if(action == "camera"){
 			float px,py,pz,tx,ty,tz,ux,uy,uz,fov,aperture,dist;
-			cin >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov >>aperture/* >> f*/;//ver esse f, provavel ser o depth of field
+			cin >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov >>aperture >> dist;//dist = distancia focal
 			// camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
-			vec3 direction(tx-px,ty-py,tz-pz);
-			dist = direction.size();
 			cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, float(W)/float(H), aperture ,dist);
 		}else if(action == "material"){
 			float r, g, b, kd, ks, ke, alpha;
