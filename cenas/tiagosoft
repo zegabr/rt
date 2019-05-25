@@ -1,7 +1,7 @@
-outputfile tiagosoftshadow.ppm
+outputfile tiagosoft.ppm
 res 500 500
 
-camera 3 2 3  0 1 0  0 1 0  100  0.2 1
+camera 3 2 3  0 1 0  0 1 0  90  0 1
 
 material m1 0 0 1  0.0 0.7 0.3  1.0 0
 material m2 1 1 1  0.0 0.3 1.0  1.0 1
@@ -13,4 +13,4 @@ sphere 0 1 -1 0.2 m1
 sphere 0 3 -1 0.7 m2
 sphere 0 -1000.5 -1 1000 floor
 
-lightplane 0 4 0 10 4 0 0 4 10 30
+lightplane 2 7 -1 -1 7 -1 2 7 2 30

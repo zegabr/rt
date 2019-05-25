@@ -1,4 +1,4 @@
-outputfile ze.ppm
+outputfile roundbox.ppm
 res 500 500
 
 camera 1 1 3  0 0 0  0 1 0  90 0.01 1

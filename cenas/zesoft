@@ -1,7 +1,7 @@
-outputfile cenazesoft.ppm
+outputfile zesoft.ppm
 res 500 500
 
-camera 1 1 3  0 0 0  0 1 0  90 0.01 1 1
+camera 1 1 3  0 0 0  0 1 0  90 0.01 10
 
 material red 1 1 1  0.0 0.5 1.0 0.2 1
 material green  0 1 0  0.0 0.5 0.7  1.2 1
