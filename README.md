@@ -20,7 +20,11 @@ Caso seja usado o comando planelight, o código desconsiderará quaisquer phongl
 
 ## Integrantes:
 Tiago Souza - tsc2
+
 José Gabriel Pereira - jgsp2
+
 Gabriel Teixeira - gtsa
+
 Lucas Mendonça - lsm5
+
 Leão Liu - llm2
