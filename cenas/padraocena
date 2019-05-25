@@ -4,9 +4,9 @@ res H W
 
 camera px py pz tx ty tz ux uy uz fov aperture distancia_focal
 
-planelight p0x p0y p0z p1x p1y p1z p2x p2y p2z
+planelight p0x p0y p0z p1x p1y p1z p2x p2y p2z precisao_soft_shadow
 
 um ou mais dos seguintes:
-    material material_name r g b ka kd ks alpha
+    material material_name r g b ka kd ks alpha is_reflective
     sphere cx cy cz r material_name
     light r g b px py pz
