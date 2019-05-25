@@ -141,8 +141,9 @@ int main(){
 		}else if(action == "camera"){
 			float px,py,pz,tx,ty,tz,ux,uy,uz,fov,aperture,dist;
 			cin >> px >> py >> pz >> tx >> ty >> tz >> ux >> uy >> uz >> fov >>aperture >> dist;//dist = distancia focal
-			// camera: 1 parametro é a posição da camera, segundo é o alvo, terceiro é o vetor up, quarto é o fov (vertical), quinto é o aspect/ratio
-			cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, float(W)/float(H), aperture ,dist);
+			cam = camera(vec3(px,py,pz), vec3(tx,ty,tz), vec3(ux,uy,uz), fov, float(W)/float(H), aperture      ,dist);
+			// camera:     origem               alvo           upvector   fov         aspectratio   abertura    distancia focal
+
 		}else if(action == "material"){
 			float r, g, b, kd, ks, ke, alpha;
 			string name;
