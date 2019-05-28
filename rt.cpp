@@ -101,10 +101,9 @@ bool scatter(const ray& r_in, const hit_record& rec, ray& scattered) {
 vec3 color(const ray& r, const hitable_list *world, const camera &cam, int soft, const int depth){
 	hit_record rec;
 	if(world->hit(r,0.00000001,FLT_MAX,rec)){ // se acertar algum objeto da imagem, entra nesse if
-		vec3 albedo;
 		ray scattered;
 		if(depth < 20) { // máx 20 interações 
-			if(scatter(r,rec,scattered) && rec.material.reflective) { // entra aqui se o material for refletível
+			if(rec.material.reflective && scatter(r,rec,scattered)  ) { // entra aqui se o material for refletível
 				vec3 attenuation = color(scattered,world,cam,soft,depth+1); // pega a cor do próx material
 				return attenuation*rec.material.Ks + phong(rec,cam,world,soft); // retorna a reflexão + a cor do mat
 			} 
